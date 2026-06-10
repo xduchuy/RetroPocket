@@ -327,6 +327,7 @@ function initActiveGame() {
     keysPressed[k] = false;
   }
   activeTouchKeys.clear();
+  appState = STATE.playing;
   
   if (activeGameKey === 'snake') activeGame = new SnakeGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'blocks') activeGame = new BlockDropGame(DOM.canvas, difficulty);

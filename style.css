@@ -823,6 +823,51 @@ body {
   font-weight: bold;
 }
 
+/* Difficulty Picker inside Instructions Box */
+.difficulty-picker {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: 5px 0 10px 0;
+}
+
+.diff-btn {
+  background-color: var(--bg-main);
+  color: #8b81b5;
+  border: 2px solid var(--bg-panel);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.1s ease;
+  outline: none;
+}
+
+.diff-btn:hover {
+  border-color: var(--white);
+  color: var(--white);
+}
+
+.diff-btn.active[data-diff="easy"] {
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+}
+
+.diff-btn.active[data-diff="normal"] {
+  border-color: var(--yellow);
+  color: var(--yellow);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.diff-btn.active[data-diff="hard"] {
+  border-color: var(--pink);
+  color: var(--pink);
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+}
+
 /* Gameover Stats */
 .gameover-stats {
   border: 3px double var(--bg-panel);

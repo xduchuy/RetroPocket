@@ -104,7 +104,6 @@ const DOM = {
   canvas: document.getElementById('gameCanvas'),
   ctx: document.getElementById('gameCanvas').getContext('2d'),
   
-  difficultySelect: document.getElementById('difficultySelect'),
   soundToggle: document.getElementById('soundToggle'),
   hofButton: document.getElementById('hofButton'),
   randomGameBtn: document.getElementById('randomGameBtn'),
@@ -237,9 +236,14 @@ DOM.randomGameBtn.addEventListener('click', () => {
   launchGame(randKey);
 });
 
-DOM.difficultySelect.addEventListener('change', (e) => {
-  difficulty = e.target.value;
-  sounds.playClick();
+// Bind click event listeners to the pre-game difficulty buttons
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    sounds.playClick();
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    difficulty = btn.dataset.diff;
+  });
 });
 
 // ----------------------------------------------------
@@ -312,6 +316,15 @@ function launchGame(gameKey) {
     DOM.ctrlDpad.classList.remove('hidden');
     DOM.instructionText.textContent = "Hop across highway lanes and logs to reach the neon bays. Avoid cars and water!";
   }
+  
+  // Sync difficulty button highlights with the current global difficulty
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    if (btn.dataset.diff === difficulty) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
   
   DOM.instructionsOverlay.classList.remove('hidden');
 }

@@ -31,14 +31,7 @@
       
       <!-- Quick Options Panel -->
       <div class="options-bar">
-        <div class="option-group">
-          <label for="difficultySelect">DIFF:</label>
-          <select id="difficultySelect" class="retro-select">
-            <option value="easy">EASY</option>
-            <option value="normal" selected>NORMAL</option>
-            <option value="hard">HARD</option>
-          </select>
-        </div>
+
 
         <button id="soundToggle" class="retro-btn icon-btn" title="Toggle Sound">
           <span class="btn-text">🔊 SOUND ON</span>
@@ -189,6 +182,11 @@
             <div class="instructions-box">
               <div class="instruct-title">GET READY</div>
               <div id="instructionText" class="instruct-desc">Use arrow keys to move.</div>
+              <div class="difficulty-picker">
+                <button type="button" class="diff-btn" data-diff="easy">EASY</button>
+                <button type="button" class="diff-btn active" data-diff="normal">NORMAL</button>
+                <button type="button" class="diff-btn" data-diff="hard">HARD</button>
+              </div>
               <button id="startGameBtn" class="retro-btn play-btn"><span class="btn-text">START</span></button>
             </div>
           </div>

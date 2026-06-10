@@ -989,6 +989,7 @@ class SnakeGame {
     this.powerup = null; // { x, y, type: 'gold'/'heart', timer: ms }
     this.stepTimer = 0;
     this.stepInterval = 100; // ms
+    this.inputLock = false;
   }
 
   init() {
@@ -1001,6 +1002,7 @@ class SnakeGame {
     this.nextDir = { x: 1, y: 0 };
     this.spawnApple();
     this.powerup = null;
+    this.inputLock = false;
     
     if (this.diff === 'easy') this.stepInterval = 130;
     else if (this.diff === 'normal') this.stepInterval = 95;
@@ -1031,14 +1033,25 @@ class SnakeGame {
 
   handleInput(key, type) {
     if (type !== 'keydown') return;
+    if (this.inputLock) return;
+
+    let turnRegistered = false;
     if ((key === 'ArrowUp' || key === 'w' || key === 'W') && this.dir.y === 0) {
       this.nextDir = { x: 0, y: -1 };
+      turnRegistered = true;
     } else if ((key === 'ArrowDown' || key === 's' || key === 'S') && this.dir.y === 0) {
       this.nextDir = { x: 0, y: 1 };
+      turnRegistered = true;
     } else if ((key === 'ArrowLeft' || key === 'a' || key === 'A') && this.dir.x === 0) {
       this.nextDir = { x: -1, y: 0 };
+      turnRegistered = true;
     } else if ((key === 'ArrowRight' || key === 'd' || key === 'D') && this.dir.x === 0) {
       this.nextDir = { x: 1, y: 0 };
+      turnRegistered = true;
+    }
+
+    if (turnRegistered) {
+      this.inputLock = true;
     }
   }
 
@@ -1056,6 +1069,7 @@ class SnakeGame {
     if (this.stepTimer >= this.stepInterval) {
       this.stepTimer = 0;
       this.dir = { ...this.nextDir };
+      this.inputLock = false;
       
       // Wrap coordinates around screen boundaries (allow walking through walls)
       const head = { 
@@ -1528,10 +1542,10 @@ class PaddleBounceGame {
     }
 
     // Bricks Collisions
-    let activeBricks = 0;
-    this.bricks.forEach(brick => {
-      if (!brick.alive) return;
-      activeBricks++;
+    let hitAny = false;
+    for (let i = 0; i < this.bricks.length; i++) {
+      const brick = this.bricks[i];
+      if (!brick.alive) continue;
 
       if (this.ball.x + this.ball.size >= brick.x &&
           this.ball.x <= brick.x + brick.w &&
@@ -1539,7 +1553,7 @@ class PaddleBounceGame {
           this.ball.y <= brick.y + brick.h) {
         
         brick.alive = false;
-        this.ball.vy *= -1;
+        hitAny = true;
         score += brick.points * this.scoreMultiplier;
         sounds.playScore();
 
@@ -1549,10 +1563,16 @@ class PaddleBounceGame {
           const type = types[Math.floor(Math.random() * types.length)];
           this.powerups.push({ x: brick.x + brick.w / 2, y: brick.y, type, size: 10 });
         }
+        break; // Only hit one brick per frame to prevent double inversion of vy
       }
-    });
+    }
 
-    if (activeBricks === 0) {
+    if (hitAny) {
+      this.ball.vy *= -1;
+    }
+
+    const hasBricksLeft = this.bricks.some(b => b.alive);
+    if (!hasBricksLeft) {
       sounds.playWin();
       this.spawnBricks();
       this.resetBall();
@@ -1867,11 +1887,12 @@ class MemoryTilesGame {
     this.isChecking = false;
     this.moves = 0;
     
-    this.gridSize = 4; // 4x4
-    this.tileSize = 74;
-    this.tileGap = 8;
+    this.gridSize = 8; // 8x8
+    this.tileSize = 42;
+    this.tileGap = 4;
     this.offsetX = (canvas.width - (this.gridSize * (this.tileSize + this.tileGap) - this.tileGap)) / 2;
     this.offsetY = (canvas.height - (this.gridSize * (this.tileSize + this.tileGap) - this.tileGap)) / 2;
+    this.timers = [];
   }
 
   init() {
@@ -1879,9 +1900,13 @@ class MemoryTilesGame {
     this.revealedIndices = [];
     this.isChecking = false;
     this.moves = 0;
+    this.timers = [];
 
-    // 8 Pairs of shapes (numbered 0-7)
-    const shapesList = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7];
+    // 32 Pairs of shapes/colors (numbered 0-31)
+    const shapesList = [];
+    for (let i = 0; i < 32; i++) {
+      shapesList.push(i, i);
+    }
     
     // Fisher-Yates Shuffle
     for (let i = shapesList.length - 1; i > 0; i--) {
@@ -1928,6 +1953,15 @@ class MemoryTilesGame {
     }
   }
 
+  setTimer(fn, ms) {
+    const id = setTimeout(() => {
+      this.timers = this.timers.filter(t => t !== id);
+      fn();
+    }, ms);
+    this.timers.push(id);
+    return id;
+  }
+
   checkPair() {
     const idx1 = this.revealedIndices[0];
     const idx2 = this.revealedIndices[1];
@@ -1936,7 +1970,7 @@ class MemoryTilesGame {
 
     if (t1.shapeIdx === t2.shapeIdx) {
       // Match!
-      setTimeout(() => {
+      this.setTimer(() => {
         t1.state = 'matched';
         t2.state = 'matched';
         this.revealedIndices = [];
@@ -1951,7 +1985,7 @@ class MemoryTilesGame {
 
         // Check if game won
         if (this.tiles.every(t => t.state === 'matched')) {
-          setTimeout(() => {
+          this.setTimer(() => {
             sounds.playWin();
             // Bonus points for fewer moves
             let moveBonus = Math.max(0, (30 - this.moves) * 10);
@@ -1962,7 +1996,7 @@ class MemoryTilesGame {
       }, 500);
     } else {
       // No Match
-      setTimeout(() => {
+      this.setTimer(() => {
         t1.state = 'hidden';
         t2.state = 'hidden';
         this.revealedIndices = [];
@@ -1984,25 +2018,26 @@ class MemoryTilesGame {
   draw(ctx) {
     // Render Tiles
     this.tiles.forEach(t => {
+      const borderW = t.size > 50 ? 3 : 2;
       if (t.state === 'hidden') {
         // Draw hidden blue card back
         ctx.fillStyle = '#18122b';
         ctx.fillRect(t.x, t.y, t.size, t.size);
         ctx.strokeStyle = varColor('--blue');
-        ctx.lineWidth = 3;
+        ctx.lineWidth = borderW;
         ctx.strokeRect(t.x, t.y, t.size, t.size);
         
-        // Inner detail
+        // Inner detail scaled dynamically
         ctx.fillStyle = '#241b3f';
-        ctx.fillRect(t.x + t.size / 2 - 10, t.y + t.size / 2 - 10, 20, 20);
+        ctx.fillRect(t.x + t.size / 2 - t.size * 0.15, t.y + t.size / 2 - t.size * 0.15, t.size * 0.3, t.size * 0.3);
         ctx.fillStyle = '#3b82f6';
-        ctx.fillRect(t.x + t.size / 2 - 4, t.y + t.size / 2 - 4, 8, 8);
+        ctx.fillRect(t.x + t.size / 2 - t.size * 0.06, t.y + t.size / 2 - t.size * 0.06, t.size * 0.12, t.size * 0.12);
       } else if (t.state === 'revealed' || t.state === 'matched') {
         // Draw card front base
         ctx.fillStyle = t.state === 'matched' ? '#07050d' : '#241b3f';
         ctx.fillRect(t.x, t.y, t.size, t.size);
         ctx.strokeStyle = t.state === 'matched' ? '#39ff14' : '#ff007f';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = borderW;
         ctx.strokeRect(t.x, t.y, t.size, t.size);
 
         // Draw Icons (Pixel Art styles based on Index)
@@ -2016,20 +2051,33 @@ class MemoryTilesGame {
     ctx.fillText(`MOVES: ${this.moves}`, 15, 25);
   }
 
-  drawIcon(ctx, type, cx, cy) {
+  drawIcon(ctx, shapeIdx, cx, cy) {
     ctx.save();
     ctx.translate(cx, cy);
     
+    // Scale down the icon geometry to fit inside 42px tiles (originally designed for 74px)
+    ctx.scale(0.52, 0.52);
+
+    const type = shapeIdx % 8;
+    const paletteIdx = Math.floor(shapeIdx / 8);
+    const palettes = [
+      { p: '#00f0ff', s: '#3b82f6' }, // Neon Cyan / Blue
+      { p: '#ffd700', s: '#ff6c00' }, // Gold / Orange
+      { p: '#39ff14', s: '#22cc0d' }, // Lime / Green
+      { p: '#ff007f', s: '#ff0055' }  // Hot Pink / Red
+    ];
+    const color = palettes[paletteIdx % palettes.length];
+
     if (type === 0) {
       // Yellow Twinkle Star
-      ctx.fillStyle = '#ffd700';
+      ctx.fillStyle = color.p;
       ctx.fillRect(-4, -16, 8, 8);
       ctx.fillRect(-16, -4, 32, 8);
       ctx.fillRect(-4, 8, 8, 8);
       ctx.fillRect(-4, -4, 8, 8); // center
     } else if (type === 1) {
       // Red Heart
-      ctx.fillStyle = '#ff0055';
+      ctx.fillStyle = color.p;
       ctx.fillRect(-12, -8, 8, 8);
       ctx.fillRect(4, -8, 8, 8);
       ctx.fillRect(-16, 0, 32, 8);
@@ -2041,36 +2089,36 @@ class MemoryTilesGame {
       ctx.fillStyle = '#e5e7eb';
       ctx.fillRect(-3, -16, 6, 20);
       // Hilt guard
-      ctx.fillStyle = '#ff6c00';
+      ctx.fillStyle = color.s;
       ctx.fillRect(-10, 4, 20, 4);
       // Handle
       ctx.fillStyle = '#8b5a2b';
       ctx.fillRect(-3, 8, 6, 8);
     } else if (type === 3) {
       // Blue Shield
-      ctx.fillStyle = '#00f0ff';
+      ctx.fillStyle = color.p;
       ctx.fillRect(-12, -12, 24, 16);
       ctx.fillRect(-8, 4, 16, 8);
       ctx.fillRect(-4, 12, 8, 4);
       // center cross
-      ctx.fillStyle = '#3b82f6';
+      ctx.fillStyle = color.s;
       ctx.fillRect(-12, -2, 24, 4);
       ctx.fillRect(-2, -12, 4, 24);
     } else if (type === 4) {
       // Gold Coin
-      ctx.fillStyle = '#ff6c00';
+      ctx.fillStyle = color.s;
       ctx.beginPath();
       ctx.arc(0, 0, 14, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#ffd700';
+      ctx.fillStyle = color.p;
       ctx.beginPath();
       ctx.arc(0, 0, 11, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#ff6c00';
+      ctx.fillStyle = color.s;
       ctx.fillRect(-3, -6, 6, 12);
     } else if (type === 5) {
       // Yellow Lightning
-      ctx.fillStyle = '#ffd700';
+      ctx.fillStyle = color.p;
       ctx.beginPath();
       ctx.moveTo(0, -16);
       ctx.lineTo(8, -4);
@@ -2082,7 +2130,7 @@ class MemoryTilesGame {
       ctx.fill();
     } else if (type === 6) {
       // Purple Diamond
-      ctx.fillStyle = '#d846ff';
+      ctx.fillStyle = color.p;
       ctx.beginPath();
       ctx.moveTo(0, -15);
       ctx.lineTo(12, 0);
@@ -2095,7 +2143,7 @@ class MemoryTilesGame {
       ctx.fillRect(-3, -4, 4, 4);
     } else if (type === 7) {
       // Green Slime/Monster
-      ctx.fillStyle = '#39ff14';
+      ctx.fillStyle = color.p;
       ctx.fillRect(-12, -8, 24, 16);
       ctx.fillRect(-16, 0, 32, 8);
       // eyes
@@ -2107,7 +2155,10 @@ class MemoryTilesGame {
     ctx.restore();
   }
 
-  cleanup() {}
+  cleanup() {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers = [];
+  }
 }
 
 // ----------------------------------------------------
@@ -2384,6 +2435,7 @@ class MinesweeperGame {
     this.firstClick = true;
     this.gameOver = false;
     this.gameWon = false;
+    this.gameOverTimeout = null;
     
     // Mobile Touch Hold details
     this.touchStartTime = 0;
@@ -2396,6 +2448,7 @@ class MinesweeperGame {
     this.firstClick = true;
     this.gameOver = false;
     this.gameWon = false;
+    this.gameOverTimeout = null;
     this.grid = [];
     
     for (let r = 0; r < this.rows; r++) {
@@ -2463,7 +2516,7 @@ class MinesweeperGame {
       this.gameOver = true;
       sounds.playHit();
       this.revealAll(false);
-      setTimeout(() => triggerGameOver(), 1000);
+      this.gameOverTimeout = setTimeout(() => triggerGameOver(), 1000);
       return;
     }
     
@@ -2524,7 +2577,7 @@ class MinesweeperGame {
       sounds.playWin();
       // Win bonus points
       score += 150;
-      setTimeout(() => triggerGameOver(), 1000);
+      this.gameOverTimeout = setTimeout(() => triggerGameOver(), 1000);
     }
   }
 
@@ -2699,6 +2752,10 @@ class MinesweeperGame {
       clearTimeout(this.touchTimer);
       this.touchTimer = null;
     }
+    if (this.gameOverTimeout) {
+      clearTimeout(this.gameOverTimeout);
+      this.gameOverTimeout = null;
+    }
   }
 }
 
@@ -2718,6 +2775,7 @@ class FlappyPixelGame {
     this.gameOver = false;
     this.bgOffset = 0;
     this.floorOffset = 0;
+    this.gameOverTimeout = null;
   }
 
   init() {
@@ -2727,6 +2785,7 @@ class FlappyPixelGame {
     this.gameOver = false;
     this.bgOffset = 0;
     this.floorOffset = 0;
+    this.gameOverTimeout = null;
 
     if (this.diff === 'easy') {
       this.gap = 130;
@@ -2849,7 +2908,7 @@ class FlappyPixelGame {
   triggerOver() {
     this.gameOver = true;
     sounds.playHit();
-    setTimeout(() => {
+    this.gameOverTimeout = setTimeout(() => {
       triggerGameOver();
     }, 800);
   }
@@ -2939,7 +2998,12 @@ class FlappyPixelGame {
     }
   }
 
-  cleanup() {}
+  cleanup() {
+    if (this.gameOverTimeout) {
+      clearTimeout(this.gameOverTimeout);
+      this.gameOverTimeout = null;
+    }
+  }
 }
 
 // ----------------------------------------------------
@@ -2957,6 +3021,7 @@ class PixelHopGame {
     // Difficulty multipliers
     this.speedFactor = 1.0;
     this.spawnGapFactor = 1.0;
+    this.gameOverTimeout = null;
   }
 
   init() {
@@ -2965,6 +3030,7 @@ class PixelHopGame {
     this.obstacles = [];
     this.logs = [];
     this.gameOver = false;
+    this.gameOverTimeout = null;
 
     if (this.diff === 'easy') {
       this.speedFactor = 0.75;
@@ -3097,7 +3163,7 @@ class PixelHopGame {
   triggerOver() {
     this.gameOver = true;
     sounds.playHit();
-    setTimeout(() => {
+    this.gameOverTimeout = setTimeout(() => {
       triggerGameOver();
     }, 800);
   }
@@ -3201,7 +3267,12 @@ class PixelHopGame {
     ctx.fillRect(this.frog.x + 10, this.frog.y - 6, 3, 12);
   }
 
-  cleanup() {}
+  cleanup() {
+    if (this.gameOverTimeout) {
+      clearTimeout(this.gameOverTimeout);
+      this.gameOverTimeout = null;
+    }
+  }
 }
 
 // ----------------------------------------------------

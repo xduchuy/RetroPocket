@@ -678,7 +678,7 @@ body {
   align-items: center;
   margin-top: auto;
   padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
-  min-height: 140px;
+  min-height: 250px;
   justify-content: center;
 }
 
@@ -693,9 +693,9 @@ body {
 /* D-PAD Layout */
 .dpad-grid {
   display: grid;
-  grid-template-columns: repeat(3, 62px);
-  grid-template-rows: repeat(3, 62px);
-  gap: 5px;
+  grid-template-columns: repeat(3, 76px);
+  grid-template-rows: repeat(3, 76px);
+  gap: 8px;
   justify-content: center;
 }
 
@@ -704,7 +704,7 @@ body {
   border: 3px solid var(--white);
   color: var(--white);
   font-family: var(--font-pixel);
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 900;
   display: flex;
   justify-content: center;
@@ -742,14 +742,14 @@ body {
 }
 
 .move-btn {
-  width: 62px;
-  height: 62px;
+  width: 76px;
+  height: 76px;
 }
 
 .action-btn {
-  width: 72px;
-  height: 62px;
-  font-size: 9px;
+  width: 86px;
+  height: 76px;
+  font-size: 11px;
 }
 
 .primary-action {
@@ -778,14 +778,42 @@ body {
 
 .jump-btn {
   width: 100%;
-  height: 60px;
-  font-size: 12px;
+  height: 75px;
+  font-size: 15px;
   color: var(--green);
   border-color: var(--green);
 }
 .jump-btn:active {
   background-color: var(--green);
   color: var(--bg-main);
+}
+
+/* Responsive Scaling for Small Height Devices */
+@media (max-height: 680px) {
+  .mobile-controller {
+    min-height: 190px;
+  }
+  .dpad-grid {
+    grid-template-columns: repeat(3, 60px);
+    grid-template-rows: repeat(3, 60px);
+    gap: 4px;
+  }
+  .ctrl-btn {
+    font-size: 14px;
+  }
+  .move-btn {
+    width: 60px;
+    height: 60px;
+  }
+  .action-btn {
+    width: 70px;
+    height: 60px;
+    font-size: 9px;
+  }
+  .jump-btn {
+    height: 55px;
+    font-size: 12px;
+  }
 }
 
 /* Modals Overlay */

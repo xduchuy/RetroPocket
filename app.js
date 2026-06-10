@@ -96,7 +96,7 @@ const STATE = {
   gameover: 'gameover'
 };
 
-const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog'];
+const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker'];
 
 const DOM = {
   menuScreen: document.getElementById('menuScreen'),
@@ -198,6 +198,9 @@ function updateHofDisplay() {
   document.getElementById('scoreMinesweeper').textContent = getHighScore('minesweeper');
   document.getElementById('scoreFlappy').textContent = getHighScore('flappy');
   document.getElementById('scoreFrog').textContent = getHighScore('frog');
+  document.getElementById('scoreRacer').textContent = getHighScore('racer');
+  document.getElementById('scoreGobbler').textContent = getHighScore('gobbler');
+  document.getElementById('scoreStacker').textContent = getHighScore('stacker');
 }
 
 DOM.hofButton.addEventListener('click', () => {
@@ -267,7 +270,10 @@ function launchGame(gameKey) {
     runner: 'PIXEL RUNNER',
     minesweeper: 'MINESWEEPER RETRO',
     flappy: 'FLAPPY PIXEL',
-    frog: 'PIXEL HOP'
+    frog: 'PIXEL HOP',
+    racer: 'PIXEL RACER',
+    gobbler: 'PIXEL GOBBLER',
+    stacker: 'PIXEL STACKER'
   };
   DOM.activeGameTitle.textContent = formattedNames[gameKey];
   
@@ -315,6 +321,18 @@ function launchGame(gameKey) {
   } else if (gameKey === 'frog') {
     DOM.ctrlDpad.classList.remove('hidden');
     DOM.instructionText.textContent = "Hop across highway lanes and logs to reach the neon bays. Avoid cars and water!";
+  } else if (gameKey === 'racer') {
+    DOM.ctrlLeftRightAction.classList.remove('hidden');
+    document.getElementById('btnActionA').textContent = '---';
+    document.getElementById('btnActionB').textContent = '---';
+    DOM.instructionText.textContent = "Dodge oncoming neon cars! Move left/right to change lanes.";
+  } else if (gameKey === 'gobbler') {
+    DOM.ctrlDpad.classList.remove('hidden');
+    DOM.instructionText.textContent = "Eat all neon dots. Avoid the red chasing ghost!";
+  } else if (gameKey === 'stacker') {
+    DOM.ctrlJumpOnly.classList.remove('hidden');
+    document.getElementById('btnJumpAction').textContent = 'STACK';
+    DOM.instructionText.textContent = "Press STACK or Spacebar to place the moving row. Align them perfectly!";
   }
   
   // Sync difficulty button highlights with the current global difficulty
@@ -357,6 +375,9 @@ function initActiveGame() {
   else if (activeGameKey === 'minesweeper') activeGame = new MinesweeperGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'flappy') activeGame = new FlappyPixelGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'frog') activeGame = new PixelHopGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'racer') activeGame = new PixelRacerGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'gobbler') activeGame = new PixelGobblerGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'stacker') activeGame = new PixelStackerGame(DOM.canvas, difficulty);
 
   activeGame.init();
   startGameLoop();
@@ -2864,6 +2885,614 @@ class PixelHopGame {
     ctx.fillStyle = '#22cc0d';
     ctx.fillRect(this.frog.x - 13, this.frog.y - 6, 3, 12);
     ctx.fillRect(this.frog.x + 10, this.frog.y - 6, 3, 12);
+  }
+
+  cleanup() {}
+}
+
+// ----------------------------------------------------
+// 13. GAME ENGINE 10: PIXEL RACER
+// ----------------------------------------------------
+class PixelRacerGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.diff = diff;
+    this.playerWidth = 30;
+    this.playerHeight = 55;
+    this.laneWidth = canvas.width / 3;
+    this.laneCenters = [
+      this.laneWidth / 2,
+      this.laneWidth + this.laneWidth / 2,
+      this.laneWidth * 2 + this.laneWidth / 2
+    ];
+    this.playerLane = 1;
+    this.playerX = this.laneCenters[1];
+    this.playerY = 320;
+    
+    this.obstacles = [];
+    this.spawnTimer = 0;
+    this.speedMultiplier = 1;
+    this.roadOffset = 0;
+    this.timeElapsed = 0;
+    
+    // Difficulty settings
+    if (diff === 'easy') {
+      this.baseSpeed = 160;
+      this.spawnInterval = 1800;
+    } else if (diff === 'normal') {
+      this.baseSpeed = 240;
+      this.spawnInterval = 1300;
+    } else {
+      this.baseSpeed = 320;
+      this.spawnInterval = 900;
+    }
+  }
+
+  init() {
+    this.playerLane = 1;
+    this.playerX = this.laneCenters[1];
+    this.obstacles = [];
+    this.spawnTimer = 0;
+    this.speedMultiplier = 1;
+    this.roadOffset = 0;
+    this.timeElapsed = 0;
+  }
+
+  handleInput(key, type) {
+    if (type === 'keydown') {
+      if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
+        if (this.playerLane > 0) {
+          this.playerLane--;
+          sounds.playTone(300, 'sine', 0.05);
+        }
+      } else if (key === 'ArrowRight' || key === 'd' || key === 'D') {
+        if (this.playerLane < 2) {
+          this.playerLane++;
+          sounds.playTone(300, 'sine', 0.05);
+        }
+      }
+    }
+  }
+
+  handleClick(x, y) {
+    if (x < 200) {
+      if (this.playerLane > 0) {
+        this.playerLane--;
+        sounds.playTone(300, 'sine', 0.05);
+      }
+    } else {
+      if (this.playerLane < 2) {
+        this.playerLane++;
+        sounds.playTone(300, 'sine', 0.05);
+      }
+    }
+  }
+
+  update(dt) {
+    this.timeElapsed += dt;
+    this.speedMultiplier = Math.min(1.8, 1 + this.timeElapsed / 30000);
+    
+    const currentSpeed = this.baseSpeed * this.speedMultiplier;
+    const targetX = this.laneCenters[this.playerLane];
+    this.playerX += (targetX - this.playerX) * 0.25;
+
+    this.roadOffset = (this.roadOffset + currentSpeed * (dt / 1000)) % 40;
+
+    this.spawnTimer += dt;
+    const currentSpawnInterval = Math.max(450, this.spawnInterval / this.speedMultiplier);
+    if (this.spawnTimer >= currentSpawnInterval) {
+      this.spawnTimer = 0;
+      const lane = Math.floor(Math.random() * 3);
+      
+      const safeToSpawn = !this.obstacles.some(o => o.lane === lane && o.y < 80);
+      if (safeToSpawn) {
+        const colors = ['#ff007f', '#ffd700', '#39ff14', '#ff6c00'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        this.obstacles.push({
+          lane: lane,
+          x: this.laneCenters[lane],
+          y: -60,
+          w: 28,
+          h: 50,
+          speed: currentSpeed * (0.8 + Math.random() * 0.4),
+          color: color
+        });
+      }
+    }
+
+    for (let i = this.obstacles.length - 1; i >= 0; i--) {
+      const o = this.obstacles[i];
+      o.y += o.speed * (dt / 1000);
+
+      const collides = (
+        Math.abs(this.playerX - o.x) < (this.playerWidth/2 + o.w/2) &&
+        o.y + o.h > this.playerY &&
+        o.y < this.playerY + this.playerHeight
+      );
+
+      if (collides) {
+        triggerGameOver();
+        return;
+      }
+
+      if (o.y > 400) {
+        score += 10;
+        sounds.playScore();
+        this.obstacles.splice(i, 1);
+      }
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#0a0a14';
+    ctx.fillRect(0, 0, 400, 400);
+
+    ctx.strokeStyle = '#ff007f';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(10, 0); ctx.lineTo(10, 400);
+    ctx.moveTo(390, 0); ctx.lineTo(390, 400);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#2b224d';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([15, 25]);
+    ctx.beginPath();
+    ctx.moveTo(this.laneWidth, -40 + this.roadOffset);
+    ctx.lineTo(this.laneWidth, 440 + this.roadOffset);
+    ctx.moveTo(this.laneWidth * 2, -40 + this.roadOffset);
+    ctx.lineTo(this.laneWidth * 2, 440 + this.roadOffset);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    this.obstacles.forEach(o => {
+      ctx.fillStyle = o.color;
+      ctx.fillRect(o.x - o.w/2, o.y, o.w, o.h);
+
+      ctx.fillStyle = '#111';
+      ctx.fillRect(o.x - o.w/2 - 2, o.y + 6, 2, 10);
+      ctx.fillRect(o.x + o.w/2, o.y + 6, 2, 10);
+      ctx.fillRect(o.x - o.w/2 - 2, o.y + o.h - 16, 2, 10);
+      ctx.fillRect(o.x + o.w/2, o.y + o.h - 16, 2, 10);
+
+      ctx.fillStyle = '#00f0ff';
+      ctx.fillRect(o.x - o.w/2 + 3, o.y + o.h - 15, o.w - 6, 6);
+
+      ctx.fillStyle = '#ff0055';
+      ctx.fillRect(o.x - o.w/2 + 2, o.y + 2, 4, 3);
+      ctx.fillRect(o.x + o.w/2 - 6, o.y + 2, 4, 3);
+    });
+
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillRect(this.playerX - this.playerWidth/2, this.playerY, this.playerWidth, this.playerHeight);
+
+    ctx.fillStyle = '#ff007f';
+    ctx.fillRect(this.playerX - this.playerWidth/2 - 2, this.playerY + 6, 2, 12);
+    ctx.fillRect(this.playerX + this.playerWidth/2, this.playerY + 6, 2, 12);
+    ctx.fillRect(this.playerX - this.playerWidth/2 - 2, this.playerY + this.playerHeight - 18, 2, 12);
+    ctx.fillRect(this.playerX + this.playerWidth/2, this.playerY + this.playerHeight - 18, 2, 12);
+
+    ctx.fillStyle = '#ff007f';
+    ctx.fillRect(this.playerX - this.playerWidth/2 + 4, this.playerY + 12, this.playerWidth - 8, 8);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(this.playerX - this.playerWidth/2 + 2, this.playerY, 4, 3);
+    ctx.fillRect(this.playerX + this.playerWidth/2 - 6, this.playerY, 4, 3);
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.beginPath();
+    ctx.moveTo(this.playerX - this.playerWidth/2 + 2, this.playerY);
+    ctx.lineTo(this.playerX - this.playerWidth/2 - 15, 0);
+    ctx.lineTo(this.playerX - this.playerWidth/2 + 15, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(this.playerX + this.playerWidth/2 - 6, this.playerY);
+    ctx.lineTo(this.playerX + this.playerWidth/2 - 20, 0);
+    ctx.lineTo(this.playerX + this.playerWidth/2 + 10, 0);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  cleanup() {}
+}
+
+// ----------------------------------------------------
+// 14. GAME ENGINE 11: PIXEL GOBBLER
+// ----------------------------------------------------
+class PixelGobblerGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.diff = diff;
+    this.tileSize = 40;
+    this.gridSize = 10;
+    this.maze = [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
+      [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+      [1, 0, 0, 0, 1, 1, 0, 0, 0, 1],
+      [1, 0, 0, 0, 1, 1, 0, 0, 0, 1],
+      [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+      [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ];
+    
+    this.player = { x: 1, y: 1 };
+    this.ghost = { x: 8, y: 8 };
+    this.dots = [];
+    
+    this.playerDir = { x: 0, y: 0 };
+    this.nextDir = { x: 0, y: 0 };
+    
+    this.playerTimer = 0;
+    this.ghostTimer = 0;
+    this.level = 1;
+    
+    if (diff === 'easy') {
+      this.playerInterval = 180;
+      this.ghostInterval = 340;
+    } else if (diff === 'normal') {
+      this.playerInterval = 150;
+      this.ghostInterval = 250;
+    } else {
+      this.playerInterval = 120;
+      this.ghostInterval = 180;
+    }
+  }
+
+  init() {
+    this.level = 1;
+    this.resetLevel();
+  }
+
+  resetLevel() {
+    this.player.x = 1;
+    this.player.y = 1;
+    this.ghost.x = 8;
+    this.ghost.y = 8;
+    this.playerDir = { x: 0, y: 0 };
+    this.nextDir = { x: 0, y: 0 };
+    this.playerTimer = 0;
+    this.ghostTimer = 0;
+
+    this.dots = [];
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
+        if (this.maze[r][c] === 0) {
+          this.dots.push({ x: c, y: r, active: true });
+        }
+      }
+    }
+  }
+
+  handleInput(key) {
+    if (key === 'ArrowUp' || key === 'w' || key === 'W') {
+      this.nextDir = { x: 0, y: -1 };
+    } else if (key === 'ArrowDown' || key === 's' || key === 'S') {
+      this.nextDir = { x: 0, y: 1 };
+    } else if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
+      this.nextDir = { x: -1, y: 0 };
+    } else if (key === 'ArrowRight' || key === 'd' || key === 'D') {
+      this.nextDir = { x: 1, y: 0 };
+    }
+  }
+
+  update(dt) {
+    this.playerTimer += dt;
+    this.ghostTimer += dt;
+
+    if (this.playerTimer >= this.playerInterval) {
+      this.playerTimer = 0;
+
+      if (this.nextDir.x !== 0 || this.nextDir.y !== 0) {
+        const nx = this.player.x + this.nextDir.x;
+        const ny = this.player.y + this.nextDir.y;
+        if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize && this.maze[ny][nx] === 0) {
+          this.playerDir = { ...this.nextDir };
+        }
+      }
+
+      if (this.playerDir.x !== 0 || this.playerDir.y !== 0) {
+        const nx = this.player.x + this.playerDir.x;
+        const ny = this.player.y + this.playerDir.y;
+        
+        if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize && this.maze[ny][nx] === 0) {
+          this.player.x = nx;
+          this.player.y = ny;
+          
+          const dot = this.dots.find(d => d.x === nx && d.y === ny && d.active);
+          if (dot) {
+            dot.active = false;
+            score += 10;
+            sounds.playTone(800, 'sine', 0.05);
+            
+            const remaining = this.dots.some(d => d.active);
+            if (!remaining) {
+              score += 150;
+              sounds.playWin();
+              this.level++;
+              this.resetLevel();
+              return;
+            }
+          }
+        } else {
+          this.playerDir = { x: 0, y: 0 };
+        }
+      }
+    }
+
+    const currentGhostInterval = Math.max(120, this.ghostInterval - (this.level - 1) * 15);
+    if (this.ghostTimer >= currentGhostInterval) {
+      this.ghostTimer = 0;
+
+      const directions = [
+        { x: 0, y: -1 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+        { x: 1, y: 0 }
+      ];
+
+      let bestDir = null;
+      let minDistance = Infinity;
+
+      const isRandomChoice = Math.random() < 0.15;
+      const validMoves = [];
+      directions.forEach(d => {
+        const nx = this.ghost.x + d.x;
+        const ny = this.ghost.y + d.y;
+        if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize && this.maze[ny][nx] === 0) {
+          validMoves.push(d);
+          const dist = Math.abs(nx - this.player.x) + Math.abs(ny - this.player.y);
+          if (dist < minDistance) {
+            minDistance = dist;
+            bestDir = d;
+          }
+        }
+      });
+
+      if (validMoves.length > 0) {
+        let chosenDir = bestDir;
+        if (isRandomChoice) {
+          chosenDir = validMoves[Math.floor(Math.random() * validMoves.length)];
+        }
+        if (chosenDir) {
+          this.ghost.x += chosenDir.x;
+          this.ghost.y += chosenDir.y;
+        }
+      }
+    }
+
+    if (this.player.x === this.ghost.x && this.player.y === this.ghost.y) {
+      triggerGameOver();
+    }
+  }
+
+  draw(ctx) {
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
+        if (this.maze[r][c] === 1) {
+          ctx.fillStyle = '#3b82f6';
+          ctx.fillRect(c * this.tileSize + 2, r * this.tileSize + 2, this.tileSize - 4, this.tileSize - 4);
+          ctx.strokeStyle = '#2563eb';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(c * this.tileSize + 2, r * this.tileSize + 2, this.tileSize - 4, this.tileSize - 4);
+        }
+      }
+    }
+
+    ctx.fillStyle = '#ffd700';
+    this.dots.forEach(d => {
+      if (d.active) {
+        ctx.beginPath();
+        ctx.arc(d.x * this.tileSize + this.tileSize/2, d.y * this.tileSize + this.tileSize/2, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+
+    ctx.fillStyle = '#ffd700';
+    const px = this.player.x * this.tileSize + this.tileSize/2;
+    const py = this.player.y * this.tileSize + this.tileSize/2;
+    ctx.beginPath();
+    ctx.arc(px, py, 15, 0.2 * Math.PI, 1.8 * Math.PI);
+    ctx.lineTo(px, py);
+    ctx.closePath();
+    ctx.fill();
+
+    const gx = this.ghost.x * this.tileSize + 5;
+    const gy = this.ghost.y * this.tileSize + 5;
+    const gSize = 30;
+    
+    ctx.fillStyle = '#ff0055';
+    ctx.beginPath();
+    ctx.arc(gx + gSize/2, gy + gSize/2, gSize/2, Math.PI, 0, false);
+    ctx.lineTo(gx + gSize, gy + gSize);
+    ctx.lineTo(gx + (gSize*5)/6, gy + gSize - 5);
+    ctx.lineTo(gx + gSize/2, gy + gSize);
+    ctx.lineTo(gx + gSize/6, gy + gSize - 5);
+    ctx.lineTo(gx, gy + gSize);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(gx + 6, gy + 10, 5, 5);
+    ctx.fillRect(gx + 17, gy + 10, 5, 5);
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillRect(gx + 8, gy + 11, 2, 2);
+    ctx.fillRect(gx + 19, gy + 11, 2, 2);
+  }
+
+  cleanup() {}
+}
+
+// ----------------------------------------------------
+// 15. GAME ENGINE 12: PIXEL STACKER
+// ----------------------------------------------------
+class PixelStackerGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.diff = diff;
+    this.rowsCount = 15;
+    this.colsCount = 10;
+    this.blockW = 40;
+    this.blockH = 24;
+    this.paddingY = 20;
+    
+    this.grid = [];
+    this.activeRow = 14;
+    this.blockWidth = 3;
+    this.blockX = 0;
+    this.blockDir = 1;
+    
+    this.shiftTimer = 0;
+    this.shiftInterval = 100;
+
+    if (diff === 'easy') {
+      this.baseInterval = 160;
+      this.speedIncrease = 0.94;
+    } else if (diff === 'normal') {
+      this.baseInterval = 120;
+      this.speedIncrease = 0.92;
+    } else {
+      this.baseInterval = 85;
+      this.speedIncrease = 0.89;
+    }
+  }
+
+  init() {
+    this.grid = Array.from({ length: this.rowsCount }, () => Array(this.colsCount).fill(false));
+    this.activeRow = this.rowsCount - 1;
+    this.blockWidth = this.diff === 'easy' ? 4 : 3;
+    this.blockX = 0;
+    this.blockDir = 1;
+    this.shiftTimer = 0;
+    this.shiftInterval = this.baseInterval;
+  }
+
+  handleInput(key, type) {
+    if (type === 'keydown' && (key === ' ' || key === 'ArrowUp' || key === 'Enter')) {
+      this.stackRow();
+    }
+  }
+
+  handleClick(x, y) {
+    this.stackRow();
+  }
+
+  stackRow() {
+    sounds.playTone(440, 'triangle', 0.08);
+
+    const start = this.blockX;
+    const end = this.blockX + this.blockWidth - 1;
+    
+    if (this.activeRow === this.rowsCount - 1) {
+      for (let x = start; x <= end; x++) {
+        this.grid[this.activeRow][x] = true;
+      }
+      score += 10;
+    } else {
+      const belowRow = this.activeRow + 1;
+      let newStart = -1;
+      let newEnd = -1;
+
+      for (let x = 0; x < this.colsCount; x++) {
+        if (this.grid[belowRow][x] && x >= start && x <= end) {
+          if (newStart === -1) newStart = x;
+          newEnd = x;
+        }
+      }
+
+      if (newStart === -1) {
+        sounds.playHit();
+        triggerGameOver();
+        return;
+      }
+
+      for (let x = newStart; x <= newEnd; x++) {
+        this.grid[this.activeRow][x] = true;
+      }
+
+      const placedWidth = newEnd - newStart + 1;
+      score += placedWidth * 20;
+      this.blockWidth = placedWidth;
+    }
+
+    this.activeRow--;
+
+    if (this.activeRow < 0) {
+      score += 500;
+      sounds.playWin();
+      triggerGameOver();
+      return;
+    }
+
+    this.blockX = 0;
+    this.blockDir = 1;
+    this.shiftInterval = Math.max(35, this.shiftInterval * this.speedIncrease);
+  }
+
+  update(dt) {
+    this.shiftTimer += dt;
+
+    if (this.shiftTimer >= this.shiftInterval) {
+      this.shiftTimer = 0;
+      this.blockX += this.blockDir;
+
+      if (this.blockX + this.blockWidth > this.colsCount) {
+        this.blockX = this.colsCount - this.blockWidth;
+        this.blockDir = -1;
+      } else if (this.blockX < 0) {
+        this.blockX = 0;
+        this.blockDir = 1;
+      }
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#06040a';
+    ctx.fillRect(0, 0, 400, 400);
+
+    ctx.strokeStyle = '#110c22';
+    ctx.lineWidth = 1;
+    for (let c = 0; c <= this.colsCount; c++) {
+      ctx.beginPath();
+      ctx.moveTo(c * this.blockW, 0);
+      ctx.lineTo(c * this.blockW, 400);
+      ctx.stroke();
+    }
+    for (let r = 0; r <= this.rowsCount; r++) {
+      ctx.beginPath();
+      ctx.moveTo(0, this.paddingY + r * this.blockH);
+      ctx.lineTo(400, this.paddingY + r * this.blockH);
+      ctx.stroke();
+    }
+
+    for (let r = 0; r < this.rowsCount; r++) {
+      for (let c = 0; c < this.colsCount; c++) {
+        if (this.grid[r][c]) {
+          if (r >= 10) ctx.fillStyle = '#ff007f';
+          else if (r >= 5) ctx.fillStyle = '#3b82f6';
+          else ctx.fillStyle = '#39ff14';
+
+          ctx.fillRect(c * this.blockW + 2, this.paddingY + r * this.blockH + 2, this.blockW - 4, this.blockH - 4);
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(c * this.blockW + 2, this.paddingY + r * this.blockH + 2, this.blockW - 4, this.blockH - 4);
+        }
+      }
+    }
+
+    if (this.activeRow >= 0) {
+      ctx.fillStyle = '#ffd700';
+      for (let i = 0; i < this.blockWidth; i++) {
+        const c = this.blockX + i;
+        ctx.fillRect(c * this.blockW + 2, this.paddingY + this.activeRow * this.blockH + 2, this.blockW - 4, this.blockH - 4);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(c * this.blockW + 2, this.paddingY + this.activeRow * this.blockH + 2, this.blockW - 4, this.blockH - 4);
+      }
+    }
   }
 
   cleanup() {}

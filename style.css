@@ -460,6 +460,60 @@ body {
     0 24px var(--green), 8px 24px var(--green), 16px 24px var(--green);
 }
 
+/* 10. Racer Icon */
+.pixel-racer-icon::after {
+  content: '';
+  position: absolute;
+  top: 10px; left: 14px;
+  width: 6px; height: 6px;
+  background: var(--cyan);
+  box-shadow:
+    /* Wheels */
+    -6px 6px var(--pink), 12px 6px var(--pink),
+    -6px 24px var(--pink), 12px 24px var(--pink),
+    /* Car body */
+    0 6px var(--cyan), 6px 6px var(--cyan),
+    0 12px var(--cyan), 6px 12px var(--cyan),
+    -6px 18px var(--cyan), 0 18px var(--cyan), 6px 18px var(--cyan), 12px 18px var(--cyan),
+    -6px 24px var(--cyan), 0 24px var(--cyan), 6px 24px var(--cyan), 12px 24px var(--cyan);
+}
+
+/* 11. Gobbler Icon */
+.pixel-gobbler-icon::after {
+  content: '';
+  position: absolute;
+  top: 16px; left: 16px;
+  width: 8px; height: 8px;
+  background: var(--yellow);
+  box-shadow:
+    /* Top curve */
+    0 -8px var(--yellow),
+    /* Row 0 */
+    -8px 0 var(--yellow), 8px 0 var(--yellow),
+    /* Row 1 (mouth open to the right) */
+    -8px 8px var(--yellow),
+    /* Row 2 */
+    -8px 16px var(--yellow), 8px 16px var(--yellow),
+    /* Bottom curve */
+    0 24px var(--yellow);
+}
+
+/* 12. Stacker Icon */
+.pixel-stacker-icon::after {
+  content: '';
+  position: absolute;
+  top: 12px; left: 12px;
+  width: 8px; height: 8px;
+  background: var(--pink);
+  box-shadow:
+    /* Bottom row (aligned) */
+    8px 24px var(--pink), 16px 24px var(--pink),
+    /* Middle row (aligned) */
+    8px 16px var(--cyan), 16px 16px var(--cyan),
+    /* Top row (misaligned/moving) */
+    16px 8px var(--yellow), 24px 8px var(--yellow);
+}
+
 .game-title {
   font-size: 11px;
   margin-bottom: 8px;
@@ -488,6 +542,9 @@ body {
 .game-card[data-game="minesweeper"]:hover { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 108, 0, 0.4); }
 .game-card[data-game="flappy"]:hover { border-color: var(--yellow); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
 .game-card[data-game="frog"]:hover { border-color: var(--green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
+.game-card[data-game="racer"]:hover { border-color: var(--cyan); box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+.game-card[data-game="gobbler"]:hover { border-color: var(--yellow); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+.game-card[data-game="stacker"]:hover { border-color: var(--pink); box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); }
 
 /* Theme Colors for Texts */
 .cyan-text { color: var(--cyan); text-shadow: 0 0 5px rgba(0, 240, 255, 0.5); }

@@ -1069,7 +1069,7 @@ body.playing-mode {
   border-radius: 12px 12px 0 0;
   margin-bottom: 0;
   padding: 8px 15px;
-  max-width: 400px;
+  max-width: 100%;
   width: 100%;
 }
 
@@ -1108,6 +1108,7 @@ body.playing-mode {
   box-shadow: none;
   overflow: visible; /* to allow the brand text to position absolute cleanly */
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px));
+  max-width: 100%;
 }
 
 .playing-mode .bezel-brand {

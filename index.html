@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RetroPocket</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0813">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <!-- PWA iOS Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RetroPocket">
+</head>
+<body>
+
+  <!-- Scanline CRT Effect -->
+  <div class="scanlines"></div>
+  <div class="crt-glow"></div>
+
+  <!-- Main Cabinet Container -->
+  <div class="arcade-cabinet">
+    
+    <!-- Header Area -->
+    <header class="arcade-header">
+      <div class="logo-container">
+        <h1 class="pixel-logo neon-glow" data-text="RETROPOCKET">RETROPOCKET</h1>
+      </div>
+      
+      <!-- Quick Options Panel -->
+      <div class="options-bar">
+        <div class="option-group">
+          <label for="difficultySelect">DIFF:</label>
+          <select id="difficultySelect" class="retro-select">
+            <option value="easy">EASY</option>
+            <option value="normal" selected>NORMAL</option>
+            <option value="hard">HARD</option>
+          </select>
+        </div>
+
+        <button id="soundToggle" class="retro-btn icon-btn" title="Toggle Sound">
+          <span class="btn-text">🔊 SOUND ON</span>
+        </button>
+
+        <button id="hofButton" class="retro-btn" title="Hall of Fame">
+          <span class="btn-text">🏆 LEADERBOARD</span>
+        </button>
+
+        <button id="randomGameBtn" class="retro-btn pulse-btn" title="Play Random Game">
+          <span class="btn-text">🎲 RANDOM</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Section -->
+    <main class="arcade-screen">
+      
+      <!-- SCREEN 1: HOME/MENU -->
+      <section id="menuScreen" class="screen-section active">
+        <div class="welcome-text">INSERT COIN TO SELECT GAME</div>
+        
+        <div class="game-grid">
+          <!-- Game 1: Snake Pixel -->
+          <div class="game-card" data-game="snake">
+            <div class="card-glow"></div>
+            <div class="game-card-inner">
+              <div class="game-card-icon pixel-snake-icon"></div>
+              <h3 class="game-title cyan-text">SNAKE PIXEL</h3>
+              <p class="game-desc">Eat neon apples, avoid your tail, and watch out for golden power-ups!</p>
+              <button class="retro-btn play-btn"><span class="btn-text">PLAY NOW</span></button>
+            </div>
+          </div>
+
+          <!-- Game 2: Block Drop -->
+          <div class="game-card" data-game="blocks">
+            <div class="card-glow"></div>
+            <div class="game-card-inner">
+              <div class="game-card-icon pixel-blocks-icon"></div>
+              <h3 class="game-title pink-text">BLOCK DROP</h3>
+              <p class="game-desc">Align falling neon blocks, clear rows, and clear high score milestones.</p>
+              <button class="retro-btn play-btn"><span class="btn-text">PLAY NOW</span></button>
+            </div>
+          </div>
+
+          <!-- Game 3: Paddle Bounce -->
+          <div class="game-card" data-game="paddle">
+            <div class="card-glow"></div>
+            <div class="game-card-inner">
+              <div class="game-card-icon pixel-paddle-icon"></div>
+              <h3 class="game-title yellow-text">PADDLE BOUNCE</h3>
+              <p class="game-desc">Bounce the energy ball to break pixel brick rows. Snatch power-ups!</p>
+              <button class="retro-btn play-btn"><span class="btn-text">PLAY NOW</span></button>
+            </div>
+          </div>
+
+          <!-- Game 4: Space Defender -->
+          <div class="game-card" data-game="defender">
+            <div class="card-glow"></div>
+            <div class="game-card-inner">
+              <div class="game-card-icon pixel-defender-icon"></div>
+              <h3 class="game-title orange-text">SPACE DEFENDER</h3>
+              <p class="game-desc">Shoot descending space debris, dodge asteroids, and upgrade lasers.</p>
+              <button class="retro-btn play-btn"><span class="btn-text">PLAY NOW</span></button>
+            </div>
+          </div>
+
+          <!-- Game 5: Memory Tiles -->
+          <div class="game-card" data-game="memory">
+            <div class="card-glow"></div>
+            <div class="game-card-inner">
+              <div class="game-card-icon pixel-memory-icon"></div>
+              <h3 class="game-title blue-text">MEMORY TILES</h3>
+              <p class="game-desc">Flip retro cards to match sets of pixel swords, shields, coins, and shields.</p>
+              <button class="retro-btn play-btn"><span class="btn-text">PLAY NOW</span></button>
+            </div>
+          </div>
+
+          <!-- Game 6: Pixel Runner -->
+          <div class="game-card" data-game="runner">
+            <div class="card-glow"></div>
+            <div class="game-card-inner">
+              <div class="game-card-icon pixel-runner-icon"></div>
+              <h3 class="game-title green-text">PIXEL RUNNER</h3>
+              <p class="game-desc">Leap over spike pits and dodge high obstacles. Keep running!</p>
+              <button class="retro-btn play-btn"><span class="btn-text">PLAY NOW</span></button>
+            </div>
+          </div>
+
+          <!-- Game 7: Minesweeper Retro -->
+          <div class="game-card" data-game="minesweeper">
+            <div class="card-glow"></div>
+            <div class="game-card-inner">
+              <div class="game-card-icon pixel-minesweeper-icon"></div>
+              <h3 class="game-title orange-text">MINESWEEPER</h3>
+              <p class="game-desc">Uncover safe grids, scan neighbors, and flag hidden spikes!</p>
+              <button class="retro-btn play-btn"><span class="btn-text">PLAY NOW</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: GAMEPLAY ARENA -->
+      <section id="gameScreen" class="screen-section">
+        <!-- HUD Header -->
+        <div class="game-hud">
+          <div class="hud-left">
+            <button id="exitGameBtn" class="retro-btn small-btn" title="Back to Menu"><span class="btn-text">◀ MENU</span></button>
+            <h2 id="activeGameTitle" class="hud-game-title cyan-text">GAME</h2>
+          </div>
+          <div class="hud-mid">
+            <div class="score-display">SCORE: <span id="currentScore">0</span></div>
+            <div class="score-display high-score">HI-SCORE: <span id="activeHighScore">0</span></div>
+          </div>
+          <div class="hud-right">
+            <button id="pauseGameBtn" class="retro-btn small-btn" title="Pause"><span class="btn-text">⏸ PAUSE</span></button>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="canvas-container">
+          <canvas id="gameCanvas" width="400" height="400"></canvas>
+          
+          <!-- Instructions overlay overlay -->
+          <div id="instructionsOverlay" class="instructions-overlay">
+            <div class="instructions-box">
+              <div class="instruct-title">GET READY</div>
+              <div id="instructionText" class="instruct-desc">Use arrow keys to move.</div>
+              <button id="startGameBtn" class="retro-btn play-btn"><span class="btn-text">START</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Mobile Controllers Container -->
+        <div id="mobileController" class="mobile-controller">
+          
+          <!-- D-PAD Layout (for Snake) -->
+          <div id="ctrlDpad" class="ctrl-layout hidden">
+            <div class="dpad-grid">
+              <div></div>
+              <button class="ctrl-btn dpad-btn" data-key="ArrowUp" id="dpadUp">▲</button>
+              <div></div>
+              <button class="ctrl-btn dpad-btn" data-key="ArrowLeft" id="dpadLeft">◀</button>
+              <div class="dpad-center"></div>
+              <button class="ctrl-btn dpad-btn" data-key="ArrowRight" id="dpadRight">▶</button>
+              <div></div>
+              <button class="ctrl-btn dpad-btn" data-key="ArrowDown" id="dpadDown">▼</button>
+              <div></div>
+            </div>
+          </div>
+
+          <!-- Slider / Left-Right + Action Layout (for Blocks / Paddle / Defender) -->
+          <div id="ctrlLeftRightAction" class="ctrl-layout hidden">
+            <div class="lr-action-layout">
+              <div class="movement-group">
+                <button class="ctrl-btn action-btn move-btn" data-key="ArrowLeft" id="btnMoveLeft">◀</button>
+                <button class="ctrl-btn action-btn move-btn" data-key="ArrowRight" id="btnMoveRight">▶</button>
+              </div>
+              <div class="action-group">
+                <!-- Rotate or Down/Fire -->
+                <button class="ctrl-btn action-btn primary-action" data-key="ArrowUp" id="btnActionA">ROTATE</button>
+                <button class="ctrl-btn action-btn secondary-action" data-key="ArrowDown" id="btnActionB">DROP</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Jump/Single button Layout (for Runner) -->
+          <div id="ctrlJumpOnly" class="ctrl-layout hidden">
+            <div class="jump-layout">
+              <button class="ctrl-btn jump-btn" data-key=" " id="btnJumpAction">JUMP</button>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Modals Section -->
+    
+    <!-- MODAL 1: HALL OF FAME -->
+    <div id="hofModal" class="modal-overlay">
+      <div class="retro-modal">
+        <h2 class="modal-title neon-glow" data-text="HALL OF FAME">🏆 HALL OF FAME 🏆</h2>
+        <div class="modal-content">
+          <ul class="leaderboard-list">
+            <li><span>SNAKE PIXEL</span><span id="scoreSnake">000</span></li>
+            <li><span>BLOCK DROP</span><span id="scoreBlocks">000</span></li>
+            <li><span>PADDLE BOUNCE</span><span id="scorePaddle">000</span></li>
+            <li><span>SPACE DEFENDER</span><span id="scoreDefender">000</span></li>
+            <li><span>MEMORY TILES</span><span id="scoreMemory">000</span></li>
+            <li><span>PIXEL RUNNER</span><span id="scoreRunner">000</span></li>
+            <li><span>MINESWEEPER RETRO</span><span id="scoreMinesweeper">000</span></li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button id="resetScoresBtn" class="retro-btn danger-btn"><span class="btn-text">RESET ALL</span></button>
+          <button id="closeHofBtn" class="retro-btn"><span class="btn-text">CLOSE</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: PAUSE SCREEN -->
+    <div id="pauseModal" class="modal-overlay">
+      <div class="retro-modal text-center">
+        <h2 class="modal-title blink-text" data-text="GAME PAUSED">GAME PAUSED</h2>
+        <div class="modal-content gap-md">
+          <button id="resumeBtn" class="retro-btn w-full"><span class="btn-text">CONTINUE</span></button>
+          <button id="restartBtn" class="retro-btn w-full"><span class="btn-text">RESTART</span></button>
+          <button id="quitBtn" class="retro-btn w-full danger-btn"><span class="btn-text">BACK TO ARCADE</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: GAME OVER -->
+    <div id="gameOverModal" class="modal-overlay">
+      <div class="retro-modal text-center">
+        <h2 class="modal-title neon-glow text-danger" data-text="GAME OVER">GAME OVER</h2>
+        <div class="modal-content">
+          <div class="gameover-stats">
+            <div class="stat-row">
+              <span>SCORE:</span>
+              <span id="finalScore" class="stat-val text-cyan">0</span>
+            </div>
+            <div class="stat-row">
+              <span>HI-SCORE:</span>
+              <span id="finalHighScore" class="stat-val text-yellow">0</span>
+            </div>
+            <div id="newHighScoreAlert" class="new-highscore-badge hidden">NEW HIGH SCORE!</div>
+          </div>
+        </div>
+        <div class="modal-footer vertical-footer">
+          <button id="goRestartBtn" class="retro-btn w-full"><span class="btn-text">PLAY AGAIN</span></button>
+          <button id="goQuitBtn" class="retro-btn w-full danger-btn"><span class="btn-text">BACK TO ARCADE</span></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0b0813"/>
+  <rect x="16" y="16" width="480" height="480" rx="80" fill="none" stroke="#00f0ff" stroke-width="8"/>
+  <rect x="32" y="32" width="448" height="448" rx="64" fill="none" stroke="#ff007f" stroke-width="4" stroke-dasharray="8 8"/>
+  
+  <!-- Arcade Cabinet Screen Shadow -->
+  <path d="M 96,128 L 416,128 L 416,340 L 96,340 Z" fill="#18122B" stroke="#00f0ff" stroke-width="12" stroke-linejoin="round"/>
+  
+  <!-- Screen Grid Scanlines -->
+  <line x1="96" y1="160" x2="416" y2="160" stroke="#2c1e47" stroke-width="4" />
+  <line x1="96" y1="190" x2="416" y2="190" stroke="#2c1e47" stroke-width="4" />
+  <line x1="96" y1="220" x2="416" y2="220" stroke="#2c1e47" stroke-width="4" />
+  <line x1="96" y1="250" x2="416" y2="250" stroke="#2c1e47" stroke-width="4" />
+  <line x1="96" y1="280" x2="416" y2="280" stroke="#2c1e47" stroke-width="4" />
+  <line x1="96" y1="310" x2="416" y2="310" stroke="#2c1e47" stroke-width="4" />
+
+  <!-- Controller Pixel D-Pad -->
+  <path d="M 170,234 H 190 V 214 H 210 V 234 H 230 V 254 H 210 V 274 H 190 V 254 H 170 Z" fill="#ffd700" stroke="#ff6c00" stroke-width="4" stroke-linejoin="miter"/>
+  
+  <!-- Controller Action Buttons -->
+  <circle cx="310" cy="254" r="16" fill="#ff007f" stroke="#99004c" stroke-width="4"/>
+  <circle cx="342" cy="224" r="16" fill="#00f0ff" stroke="#008b99" stroke-width="4"/>
+
+  <!-- Joystick Center Details -->
+  <circle cx="256" cy="244" r="8" fill="#ffffff" opacity="0.8"/>
+  
+  <!-- Glowing Pixel Sparkles -->
+  <rect x="120" y="150" width="16" height="16" fill="#00f0ff" />
+  <rect x="360" y="160" width="16" height="16" fill="#ff007f" />
+  <rect x="248" y="150" width="16" height="16" fill="#ffd700" />
+  <rect x="200" y="300" width="16" height="16" fill="#00f0ff" opacity="0.5" />
+  <rect x="300" y="305" width="16" height="16" fill="#ff007f" opacity="0.5" />
+
+  <!-- Pixel Text Glow -->
+  <text x="256" y="415" fill="#ffd700" font-family="monospace, Courier New" font-size="44" font-weight="900" text-anchor="middle" letter-spacing="4" style="text-shadow: 0 0 10px #ff6c00;">
+    RETRO
+  </text>
+</svg>

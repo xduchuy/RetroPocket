@@ -568,14 +568,14 @@ function launchGame(gameKey) {
   } else if (gameKey === 'paddle') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
     DOM.mobileController.classList.remove('hidden');
-    document.getElementById('btnActionA').textContent = '---';
-    document.getElementById('btnActionB').textContent = '---';
+    document.getElementById('btnActionA').textContent = 'A';
+    document.getElementById('btnActionB').textContent = 'B';
     DOM.instructionText.textContent = getTranslation('instruct_paddle');
   } else if (gameKey === 'defender') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
     DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnActionA').textContent = getTranslation('lbl_fire');
-    document.getElementById('btnActionB').textContent = '---';
+    document.getElementById('btnActionB').textContent = 'B';
     DOM.instructionText.textContent = getTranslation('instruct_defender');
   } else if (gameKey === 'memory') {
     DOM.instructionText.textContent = getTranslation('instruct_memory');
@@ -598,8 +598,8 @@ function launchGame(gameKey) {
   } else if (gameKey === 'racer') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
     DOM.mobileController.classList.remove('hidden');
-    document.getElementById('btnActionA').textContent = '---';
-    document.getElementById('btnActionB').textContent = '---';
+    document.getElementById('btnActionA').textContent = 'A';
+    document.getElementById('btnActionB').textContent = 'B';
     DOM.instructionText.textContent = getTranslation('instruct_racer');
   } else if (gameKey === 'gobbler') {
     DOM.ctrlDpad.classList.remove('hidden');

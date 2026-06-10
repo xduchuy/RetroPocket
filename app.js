@@ -321,6 +321,11 @@ function initActiveGame() {
     activeGame.cleanup();
   }
   
+  // Clear key states
+  for (const k in keysPressed) {
+    keysPressed[k] = false;
+  }
+  
   if (activeGameKey === 'snake') activeGame = new SnakeGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'blocks') activeGame = new BlockDropGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'paddle') activeGame = new PaddleBounceGame(DOM.canvas, difficulty);
@@ -416,6 +421,10 @@ function terminateActiveGame() {
   if (activeGame) {
     activeGame.cleanup();
     activeGame = null;
+  }
+  // Clear key states
+  for (const k in keysPressed) {
+    keysPressed[k] = false;
   }
 }
 
@@ -829,11 +838,23 @@ class BlockDropGame {
     }
     
     const prevShape = p.shape;
+    const prevX = p.x;
     p.shape = newShape;
     
-    // Wall kick simple check
-    if (this.checkCollision()) {
-      p.shape = prevShape; // revert
+    // Simple wall kick offsets to try: [0, -1, 1, -2, 2]
+    const kicks = [0, -1, 1, -2, 2];
+    let success = false;
+    for (let i = 0; i < kicks.length; i++) {
+      p.x = prevX + kicks[i];
+      if (!this.checkCollision()) {
+        success = true;
+        break;
+      }
+    }
+    
+    if (!success) {
+      p.shape = prevShape; // revert shape
+      p.x = prevX;         // revert position
     } else {
       sounds.playClick();
     }
@@ -1133,8 +1154,9 @@ class PaddleBounceGame {
       this.resetBall();
     }
 
-    // Move powerups
-    this.powerups.forEach((pu, i) => {
+    // Move powerups (using reverse loop to prevent splice index-shifting)
+    for (let i = this.powerups.length - 1; i >= 0; i--) {
+      const pu = this.powerups[i];
       pu.y += 2;
       
       // Catch check
@@ -1156,7 +1178,7 @@ class PaddleBounceGame {
       } else if (pu.y >= this.canvas.height) {
         this.powerups.splice(i, 1);
       }
-    });
+    }
   }
 
   draw(ctx) {
@@ -1316,16 +1338,17 @@ class SpaceDefenderGame {
       });
     }
 
-    // Move Lasers
-    this.lasers.forEach((laser, idx) => {
-      laser.y -= laser.speed;
-      if (laser.y < 0) {
-        this.lasers.splice(idx, 1);
+    // Move Lasers (using reverse loop to prevent splice index-shifting)
+    for (let i = this.lasers.length - 1; i >= 0; i--) {
+      this.lasers[i].y -= this.lasers[i].speed;
+      if (this.lasers[i].y < 0) {
+        this.lasers.splice(i, 1);
       }
-    });
+    }
 
-    // Move Enemies
-    this.enemies.forEach((enemy, eIdx) => {
+    // Move Enemies (using reverse loops to prevent splice index-shifting)
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      const enemy = this.enemies[i];
       enemy.y += enemy.speed;
 
       // Check crash with ship
@@ -1334,28 +1357,30 @@ class SpaceDefenderGame {
           enemy.y + enemy.h >= this.ship.y &&
           enemy.y <= this.ship.y + this.ship.h) {
         
-        this.enemies.splice(eIdx, 1);
+        this.enemies.splice(i, 1);
         this.ship.health--;
         sounds.playHit();
         if (this.ship.health <= 0) {
           triggerGameOver();
         }
-        return;
+        continue;
       }
 
       // Check slide past bottom boundary
       if (enemy.y >= this.canvas.height) {
-        this.enemies.splice(eIdx, 1);
+        this.enemies.splice(i, 1);
         this.ship.health--;
         sounds.playHit();
         if (this.ship.health <= 0) {
           triggerGameOver();
         }
-        return;
+        continue;
       }
 
       // Laser collisions
-      this.lasers.forEach((laser, lIdx) => {
+      let enemyDestroyed = false;
+      for (let j = this.lasers.length - 1; j >= 0; j--) {
+        const laser = this.lasers[j];
         if (laser.x + laser.w >= enemy.x &&
             laser.x <= enemy.x + enemy.w &&
             laser.y + laser.h >= enemy.y &&
@@ -1363,11 +1388,14 @@ class SpaceDefenderGame {
           
           sounds.playScore();
           score += enemy.points;
-          this.enemies.splice(eIdx, 1);
-          this.lasers.splice(lIdx, 1);
+          this.enemies.splice(i, 1);
+          this.lasers.splice(j, 1);
+          enemyDestroyed = true;
+          break;
         }
-      });
-    });
+      }
+      if (enemyDestroyed) continue;
+    }
   }
 
   draw(ctx) {
@@ -1775,12 +1803,13 @@ class PixelRunnerGame {
       });
     }
 
-    this.clouds.forEach((c, idx) => {
-      c.x -= c.speed;
-      if (c.x + c.w < 0) {
-        this.clouds.splice(idx, 1);
+    // Move clouds (using reverse loop to prevent splice index-shifting)
+    for (let i = this.clouds.length - 1; i >= 0; i--) {
+      this.clouds[i].x -= this.clouds[i].speed;
+      if (this.clouds[i].x + this.clouds[i].w < 0) {
+        this.clouds.splice(i, 1);
       }
-    });
+    }
 
     // Physics Update
     this.runner.vy += this.runner.gravity;
@@ -1815,13 +1844,14 @@ class PixelRunnerGame {
       this.obstacleInterval = Math.max(700, (1300 + Math.random() * 600) * (4.2 / this.gameSpeed));
     }
 
-    // Move & Collide Obstacles
-    this.obstacles.forEach((ob, idx) => {
+    // Move & Collide Obstacles (using reverse loop to prevent splice index-shifting)
+    for (let i = this.obstacles.length - 1; i >= 0; i--) {
+      const ob = this.obstacles[i];
       ob.x -= this.gameSpeed;
 
       if (ob.x + ob.w < 0) {
-        this.obstacles.splice(idx, 1);
-        return;
+        this.obstacles.splice(i, 1);
+        continue;
       }
 
       // Rect collision
@@ -1832,7 +1862,7 @@ class PixelRunnerGame {
         
         triggerGameOver();
       }
-    });
+    }
   }
 
   draw(ctx) {

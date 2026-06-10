@@ -252,6 +252,7 @@ function launchGame(gameKey) {
   
   DOM.menuScreen.classList.remove('active');
   DOM.gameScreen.classList.add('active');
+  document.body.classList.add('playing-mode');
   
   const formattedNames = {
     snake: 'SNAKE PIXEL',
@@ -436,6 +437,7 @@ function terminateActiveGame() {
     keysPressed[k] = false;
   }
   activeTouchKeys.clear();
+  document.body.classList.remove('playing-mode');
 }
 
 // ----------------------------------------------------

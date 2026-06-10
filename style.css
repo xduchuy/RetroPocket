@@ -92,6 +92,10 @@ body {
   overflow: hidden;
 }
 
+.playing-mode .arcade-header {
+  display: none !important;
+}
+
 /* Header Area */
 .arcade-header {
   background-color: var(--bg-cabinet);
@@ -237,6 +241,10 @@ body {
   overflow-x: hidden;
   background-color: var(--bg-main);
   padding: 15px;
+}
+
+.playing-mode .arcade-screen {
+  padding: 8px 10px;
 }
 
 .screen-section {

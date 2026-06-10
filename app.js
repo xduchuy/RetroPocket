@@ -722,16 +722,11 @@ class SnakeGame {
       this.stepTimer = 0;
       this.dir = { ...this.nextDir };
       
+      // Wrap coordinates around screen boundaries (allow walking through walls)
       const head = { 
-        x: this.snake[0].x + this.dir.x, 
-        y: this.snake[0].y + this.dir.y 
+        x: (this.snake[0].x + this.dir.x + this.gridCount) % this.gridCount, 
+        y: (this.snake[0].y + this.dir.y + this.gridCount) % this.gridCount 
       };
-
-      // Check boundary collision
-      if (head.x < 0 || head.x >= this.gridCount || head.y < 0 || head.y >= this.gridCount) {
-        triggerGameOver();
-        return;
-      }
 
       // Check self collision
       if (this.snake.some(segment => segment.x === head.x && segment.y === head.y)) {

@@ -415,6 +415,20 @@ body {
     -16px 0 var(--pink), 16px 0 var(--pink);
 }
 
+/* 8. Flappy Icon */
+.pixel-flappy-icon::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px;
+  width: 8px; height: 8px;
+  background: var(--yellow);
+  box-shadow: 
+    8px 0 var(--yellow), 16px 0 var(--yellow), 24px 0 var(--yellow),
+    0 8px var(--yellow), 8px 8px var(--yellow), 16px 8px var(--white), 24px 8px var(--blue), 32px 8px var(--orange), 40px 8px var(--orange),
+    0 16px var(--yellow), 8px 16px var(--yellow), 16px 16px var(--yellow), 24px 16px var(--yellow), 32px 16px var(--yellow),
+    8px 24px var(--yellow), 16px 24px var(--yellow), 24px 24px var(--yellow);
+}
+
 .game-title {
   font-size: 11px;
   margin-bottom: 8px;
@@ -441,6 +455,7 @@ body {
 .game-card[data-game="memory"]:hover { border-color: var(--blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
 .game-card[data-game="runner"]:hover { border-color: var(--green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
 .game-card[data-game="minesweeper"]:hover { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 108, 0, 0.4); }
+.game-card[data-game="flappy"]:hover { border-color: var(--yellow); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
 
 /* Theme Colors for Texts */
 .cyan-text { color: var(--cyan); text-shadow: 0 0 5px rgba(0, 240, 255, 0.5); }

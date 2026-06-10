@@ -96,7 +96,7 @@ const STATE = {
   gameover: 'gameover'
 };
 
-const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper'];
+const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy'];
 
 const DOM = {
   menuScreen: document.getElementById('menuScreen'),
@@ -196,6 +196,7 @@ function updateHofDisplay() {
   document.getElementById('scoreMemory').textContent = getHighScore('memory');
   document.getElementById('scoreRunner').textContent = getHighScore('runner');
   document.getElementById('scoreMinesweeper').textContent = getHighScore('minesweeper');
+  document.getElementById('scoreFlappy').textContent = getHighScore('flappy');
 }
 
 DOM.hofButton.addEventListener('click', () => {
@@ -257,7 +258,8 @@ function launchGame(gameKey) {
     defender: 'SPACE DEFENDER',
     memory: 'MEMORY TILES',
     runner: 'PIXEL RUNNER',
-    minesweeper: 'MINESWEEPER RETRO'
+    minesweeper: 'MINESWEEPER RETRO',
+    flappy: 'FLAPPY PIXEL'
   };
   DOM.activeGameTitle.textContent = formattedNames[gameKey];
   
@@ -298,6 +300,10 @@ function launchGame(gameKey) {
   } else if (gameKey === 'minesweeper') {
     // Tap based on canvas
     DOM.instructionText.textContent = "Tap to dig. Hold (>350ms) to flag. Safe first click!";
+  } else if (gameKey === 'flappy') {
+    DOM.ctrlJumpOnly.classList.remove('hidden');
+    document.getElementById('btnJumpAction').textContent = 'FLAP';
+    DOM.instructionText.textContent = "Press FLAP or Spacebar/Tap Screen to fly. Fly through the neon pipes!";
   }
   
   DOM.instructionsOverlay.classList.remove('hidden');
@@ -322,6 +328,7 @@ function initActiveGame() {
   else if (activeGameKey === 'memory') activeGame = new MemoryTilesGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'runner') activeGame = new PixelRunnerGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'minesweeper') activeGame = new MinesweeperGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'flappy') activeGame = new FlappyPixelGame(DOM.canvas, difficulty);
 
   activeGame.init();
   startGameLoop();
@@ -2259,6 +2266,246 @@ class MinesweeperGame {
       this.touchTimer = null;
     }
   }
+}
+
+// ----------------------------------------------------
+// 15. GAME ENGINE 8: FLAPPY PIXEL
+// ----------------------------------------------------
+class FlappyPixelGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.diff = diff;
+    this.bird = { x: 80, y: 180, w: 18, h: 14, vy: 0 };
+    this.pipes = [];
+    this.speed = 3.0;
+    this.gap = 105;
+    this.gravity = 0.45;
+    this.jumpForce = -6.5;
+    this.gameOver = false;
+    this.bgOffset = 0;
+    this.floorOffset = 0;
+  }
+
+  init() {
+    this.bird.y = 180;
+    this.bird.vy = 0;
+    this.pipes = [];
+    this.gameOver = false;
+    this.bgOffset = 0;
+    this.floorOffset = 0;
+
+    if (this.diff === 'easy') {
+      this.gap = 130;
+      this.speed = 2.2;
+      this.gravity = 0.4;
+      this.jumpForce = -6.0;
+    } else if (this.diff === 'hard') {
+      this.gap = 85;
+      this.speed = 4.0;
+      this.gravity = 0.5;
+      this.jumpForce = -7.0;
+    } else {
+      this.gap = 105;
+      this.speed = 3.0;
+      this.gravity = 0.45;
+      this.jumpForce = -6.5;
+    }
+    
+    // Spawn first pipe
+    this.spawnPipe();
+  }
+
+  spawnPipe() {
+    const minHeight = 40;
+    const maxHeight = this.canvas.height - 20 - this.gap - minHeight;
+    const topHeight = Math.floor(minHeight + Math.random() * (maxHeight - minHeight));
+    const bottomHeight = this.canvas.height - 20 - this.gap - topHeight;
+    this.pipes.push({
+      x: this.canvas.width,
+      topHeight,
+      bottomHeight,
+      passed: false
+    });
+  }
+
+  flap() {
+    if (this.gameOver) return;
+    this.bird.vy = this.jumpForce;
+    sounds.playClick();
+  }
+
+  handleInput(key, type) {
+    if (type === 'keydown') {
+      if (key === 'ArrowUp' || key === 'w' || key === 'W' || key === ' ' || key === 'ArrowDown') {
+        this.flap();
+      }
+    }
+  }
+
+  handleClick(mx, my) {
+    this.flap();
+  }
+
+  update(dt) {
+    if (this.gameOver) return;
+
+    // Apply gravity
+    this.bird.vy += this.gravity;
+    this.bird.vy = Math.min(this.bird.vy, 9);
+    this.bird.y += this.bird.vy;
+
+    // Floor collision
+    if (this.bird.y + this.bird.h / 2 >= this.canvas.height - 20) {
+      this.triggerOver();
+      return;
+    }
+    // Ceiling collision
+    if (this.bird.y - this.bird.h / 2 <= 0) {
+      this.triggerOver();
+      return;
+    }
+
+    // Scroll speed factor
+    const speedFactor = dt / 16.67;
+
+    // Move pipes
+    this.pipes.forEach(p => {
+      p.x -= this.speed * speedFactor;
+    });
+
+    // Check scoring
+    this.pipes.forEach(p => {
+      if (!p.passed && p.x + 20 < this.bird.x) {
+        p.passed = true;
+        score += 1;
+        sounds.playScore();
+      }
+    });
+
+    // Check collision with pipes
+    const bx1 = this.bird.x - this.bird.w / 2;
+    const bx2 = this.bird.x + this.bird.w / 2;
+    const by1 = this.bird.y - this.bird.h / 2;
+    const by2 = this.bird.y + this.bird.h / 2;
+
+    for (let i = 0; i < this.pipes.length; i++) {
+      const p = this.pipes[i];
+      // Top pipe box: [p.x, 0, p.x + 40, p.topHeight]
+      if (bx2 > p.x && bx1 < p.x + 40) {
+        if (by1 < p.topHeight || by2 > this.canvas.height - p.bottomHeight) {
+          this.triggerOver();
+          return;
+        }
+      }
+    }
+
+    // Spawn new pipes
+    if (this.pipes.length > 0 && this.pipes[this.pipes.length - 1].x < this.canvas.width - 160) {
+      this.spawnPipe();
+    }
+
+    // Remove old pipes
+    this.pipes = this.pipes.filter(p => p.x > -60);
+
+    // Update parallax offsets
+    this.bgOffset = (this.bgOffset - this.speed * 0.3 * speedFactor) % 40;
+    this.floorOffset = (this.floorOffset - this.speed * speedFactor) % 20;
+  }
+
+  triggerOver() {
+    this.gameOver = true;
+    sounds.playHit();
+    setTimeout(() => {
+      triggerGameOver();
+    }, 800);
+  }
+
+  draw(ctx) {
+    // Parallax background grid lines
+    ctx.strokeStyle = '#100a1d';
+    ctx.lineWidth = 1;
+    for (let x = this.bgOffset; x < this.canvas.width; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, this.canvas.height - 20);
+      ctx.stroke();
+    }
+
+    // Draw Pipes
+    this.pipes.forEach(p => {
+      ctx.fillStyle = '#07050d';
+      ctx.strokeStyle = '#00f0ff'; // neon cyan
+      ctx.lineWidth = 3;
+
+      // Top pipe
+      ctx.fillRect(p.x, 0, 40, p.topHeight);
+      ctx.strokeRect(p.x, -5, 40, p.topHeight + 5);
+      
+      // Top pipe rim
+      ctx.fillStyle = '#0b0813';
+      ctx.fillRect(p.x - 3, p.topHeight - 12, 46, 12);
+      ctx.strokeRect(p.x - 3, p.topHeight - 12, 46, 12);
+
+      // Bottom pipe
+      ctx.fillStyle = '#07050d';
+      ctx.fillRect(p.x, this.canvas.height - p.bottomHeight, 40, p.bottomHeight);
+      ctx.strokeRect(p.x, this.canvas.height - p.bottomHeight, 40, p.bottomHeight + 5);
+
+      // Bottom pipe rim
+      ctx.fillStyle = '#0b0813';
+      ctx.fillRect(p.x - 3, this.canvas.height - p.bottomHeight, 46, 12);
+      ctx.strokeRect(p.x - 3, this.canvas.height - p.bottomHeight, 46, 12);
+    });
+
+    // Draw Bird
+    ctx.save();
+    ctx.translate(this.bird.x, this.bird.y);
+    let angle = Math.min(Math.max(this.bird.vy * 0.06, -0.5), 0.8);
+    ctx.rotate(angle);
+
+    // Yellow body
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(-9, -7, 18, 14);
+
+    // Eye
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(2, -5, 4, 4);
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillRect(4, -5, 2, 2);
+
+    // Beak
+    ctx.fillStyle = '#ff6c00';
+    ctx.fillRect(7, -1, 5, 4);
+
+    // Wing (flapping animation based on velocity)
+    ctx.fillStyle = '#ff6c00';
+    let wingY = (angle < 0) ? -6 : -2;
+    ctx.fillRect(-6, wingY, 6, 6);
+
+    ctx.restore();
+
+    // Draw Floor
+    ctx.fillStyle = '#18122b';
+    ctx.fillRect(0, this.canvas.height - 20, this.canvas.width, 20);
+    ctx.strokeStyle = '#ff007f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, this.canvas.height - 20);
+    ctx.lineTo(this.canvas.width, this.canvas.height - 20);
+    ctx.stroke();
+
+    // Scroll floor texture
+    ctx.strokeStyle = '#241b3f';
+    ctx.lineWidth = 2;
+    for (let lx = this.floorOffset; lx < this.canvas.width; lx += 20) {
+      ctx.beginPath();
+      ctx.moveTo(lx, this.canvas.height - 10);
+      ctx.lineTo(lx + 5, this.canvas.height - 5);
+      ctx.stroke();
+    }
+  }
+
+  cleanup() {}
 }
 
 // ----------------------------------------------------

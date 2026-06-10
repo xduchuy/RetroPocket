@@ -430,6 +430,20 @@ body {
     8px 24px var(--yellow), 16px 24px var(--yellow), 24px 24px var(--yellow);
 }
 
+/* 9. Frog Icon */
+.pixel-frog-icon::after {
+  content: '';
+  position: absolute;
+  top: 12px; left: 12px;
+  width: 8px; height: 8px;
+  background: var(--green);
+  box-shadow: 
+    16px 0 var(--green),
+    -8px 8px var(--green), 0 8px var(--white), 8px 8px var(--green), 16px 8px var(--white), 24px 8px var(--green),
+    -8px 16px var(--green), 0 16px var(--green), 8px 16px var(--green), 16px 16px var(--green), 24px 16px var(--green),
+    0 24px var(--green), 8px 24px var(--green), 16px 24px var(--green);
+}
+
 .game-title {
   font-size: 11px;
   margin-bottom: 8px;
@@ -457,6 +471,7 @@ body {
 .game-card[data-game="runner"]:hover { border-color: var(--green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
 .game-card[data-game="minesweeper"]:hover { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 108, 0, 0.4); }
 .game-card[data-game="flappy"]:hover { border-color: var(--yellow); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+.game-card[data-game="frog"]:hover { border-color: var(--green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
 
 /* Theme Colors for Texts */
 .cyan-text { color: var(--cyan); text-shadow: 0 0 5px rgba(0, 240, 255, 0.5); }

@@ -96,7 +96,7 @@ const STATE = {
   gameover: 'gameover'
 };
 
-const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy'];
+const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog'];
 
 const DOM = {
   menuScreen: document.getElementById('menuScreen'),
@@ -198,6 +198,7 @@ function updateHofDisplay() {
   document.getElementById('scoreRunner').textContent = getHighScore('runner');
   document.getElementById('scoreMinesweeper').textContent = getHighScore('minesweeper');
   document.getElementById('scoreFlappy').textContent = getHighScore('flappy');
+  document.getElementById('scoreFrog').textContent = getHighScore('frog');
 }
 
 DOM.hofButton.addEventListener('click', () => {
@@ -260,7 +261,8 @@ function launchGame(gameKey) {
     memory: 'MEMORY TILES',
     runner: 'PIXEL RUNNER',
     minesweeper: 'MINESWEEPER RETRO',
-    flappy: 'FLAPPY PIXEL'
+    flappy: 'FLAPPY PIXEL',
+    frog: 'PIXEL HOP'
   };
   DOM.activeGameTitle.textContent = formattedNames[gameKey];
   
@@ -305,6 +307,9 @@ function launchGame(gameKey) {
     DOM.ctrlJumpOnly.classList.remove('hidden');
     document.getElementById('btnJumpAction').textContent = 'FLAP';
     DOM.instructionText.textContent = "Press FLAP or Spacebar/Tap Screen to fly. Fly through the neon pipes!";
+  } else if (gameKey === 'frog') {
+    DOM.ctrlDpad.classList.remove('hidden');
+    DOM.instructionText.textContent = "Hop across highway lanes and logs to reach the neon bays. Avoid cars and water!";
   }
   
   DOM.instructionsOverlay.classList.remove('hidden');
@@ -337,6 +342,7 @@ function initActiveGame() {
   else if (activeGameKey === 'runner') activeGame = new PixelRunnerGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'minesweeper') activeGame = new MinesweeperGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'flappy') activeGame = new FlappyPixelGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'frog') activeGame = new PixelHopGame(DOM.canvas, difficulty);
 
   activeGame.init();
   startGameLoop();
@@ -2586,6 +2592,268 @@ class FlappyPixelGame {
       ctx.lineTo(lx + 5, this.canvas.height - 5);
       ctx.stroke();
     }
+  }
+
+  cleanup() {}
+}
+
+// ----------------------------------------------------
+// 15. GAME ENGINE 9: PIXEL HOP (FROGGER RETRO)
+// ----------------------------------------------------
+class PixelHopGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.diff = diff;
+    this.frog = { x: 220, y: 380 };
+    this.obstacles = [];
+    this.logs = [];
+    this.gameOver = false;
+    
+    // Difficulty multipliers
+    this.speedFactor = 1.0;
+    this.spawnGapFactor = 1.0;
+  }
+
+  init() {
+    this.frog.x = 220;
+    this.frog.y = 380;
+    this.obstacles = [];
+    this.logs = [];
+    this.gameOver = false;
+
+    if (this.diff === 'easy') {
+      this.speedFactor = 0.75;
+      this.spawnGapFactor = 1.25;
+    } else if (this.diff === 'hard') {
+      this.speedFactor = 1.35;
+      this.spawnGapFactor = 0.85;
+    } else {
+      this.speedFactor = 1.0;
+      this.spawnGapFactor = 1.0;
+    }
+  }
+
+  handleInput(key, type) {
+    if (this.gameOver) return;
+    if (type === 'keydown') {
+      if (key === 'ArrowUp' || key === 'w' || key === 'W' || key === ' ') {
+        this.frog.y = Math.max(20, this.frog.y - 40);
+        sounds.playClick();
+      } else if (key === 'ArrowDown' || key === 's' || key === 'S') {
+        this.frog.y = Math.min(380, this.frog.y + 40);
+        sounds.playClick();
+      } else if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
+        this.frog.x = Math.max(20, this.frog.x - 40);
+        sounds.playClick();
+      } else if (key === 'ArrowRight' || key === 'd' || key === 'D') {
+        this.frog.x = Math.min(380, this.frog.x + 40);
+        sounds.playClick();
+      }
+    }
+  }
+
+  updateLaneObstacles(y, w, h, speed, color, spawnGap) {
+    const laneObstacles = this.obstacles.filter(o => o.y === y);
+    if (speed < 0) {
+      if (laneObstacles.length === 0 || laneObstacles[laneObstacles.length - 1].x < this.canvas.width - spawnGap) {
+        this.obstacles.push({ x: this.canvas.width, y, w, h, speed, color });
+      }
+    } else {
+      if (laneObstacles.length === 0 || laneObstacles[laneObstacles.length - 1].x > spawnGap - w) {
+        this.obstacles.push({ x: -w, y, w, h, speed, color });
+      }
+    }
+  }
+
+  updateLaneLogs(y, w, h, speed, color, spawnGap) {
+    const laneLogs = this.logs.filter(l => l.y === y);
+    if (speed < 0) {
+      if (laneLogs.length === 0 || laneLogs[laneLogs.length - 1].x < this.canvas.width - spawnGap) {
+        this.logs.push({ x: this.canvas.width, y, w, h, speed, color });
+      }
+    } else {
+      if (laneLogs.length === 0 || laneLogs[laneLogs.length - 1].x > spawnGap - w) {
+        this.logs.push({ x: -w, y, w, h, speed, color });
+      }
+    }
+  }
+
+  update(dt) {
+    if (this.gameOver) return;
+
+    const dtFactor = dt / 16.67;
+
+    // 1. Spawn Vehicles (Highway lanes)
+    this.updateLaneObstacles(200, 35, 24, -2.2 * this.speedFactor, '#ff007f', 180 * this.spawnGapFactor); // Lane 5
+    this.updateLaneObstacles(240, 55, 24, 1.3 * this.speedFactor, '#ff6c00', 230 * this.spawnGapFactor);  // Lane 6
+    this.updateLaneObstacles(280, 35, 24, -1.6 * this.speedFactor, '#ffd700', 190 * this.spawnGapFactor); // Lane 7
+    this.updateLaneObstacles(320, 35, 24, 1.1 * this.speedFactor, '#00f0ff', 200 * this.spawnGapFactor);  // Lane 8
+
+    // 2. Spawn Logs (River lanes)
+    this.updateLaneLogs(40, 90, 24, 1.5 * this.speedFactor, '#ff6c00', 170 * this.spawnGapFactor);   // Lane 1
+    this.updateLaneLogs(80, 130, 24, -1.0 * this.speedFactor, '#ff6c00', 220 * this.spawnGapFactor);  // Lane 2
+    this.updateLaneLogs(120, 100, 24, 1.3 * this.speedFactor, '#ff6c00', 180 * this.spawnGapFactor);  // Lane 3
+
+    // 3. Move Vehicles & filter offscreen
+    this.obstacles.forEach(o => o.x += o.speed * dtFactor);
+    this.obstacles = this.obstacles.filter(o => o.x > -100 && o.x < this.canvas.width + 100);
+
+    // 4. Move Logs & filter offscreen
+    this.logs.forEach(l => l.x += l.speed * dtFactor);
+    this.logs = this.logs.filter(l => l.x > -200 && l.x < this.canvas.width + 200);
+
+    // 5. Check Collisions / River Drifting
+    if (this.frog.y >= 200 && this.frog.y <= 340) {
+      // Highway: check vehicle collisions
+      for (let i = 0; i < this.obstacles.length; i++) {
+        const o = this.obstacles[i];
+        if (o.y === this.frog.y - 20) {
+          if (this.frog.x + 10 > o.x && this.frog.x - 10 < o.x + o.w) {
+            this.triggerOver();
+            return;
+          }
+        }
+      }
+    } else if (this.frog.y >= 60 && this.frog.y <= 140) {
+      // River: check log intersection
+      let onLog = false;
+      for (let i = 0; i < this.logs.length; i++) {
+        const log = this.logs[i];
+        if (log.y === this.frog.y - 20) {
+          if (this.frog.x >= log.x && this.frog.x <= log.x + log.w) {
+            onLog = true;
+            this.frog.x += log.speed * dtFactor;
+            break;
+          }
+        }
+      }
+      
+      // If not on log or drifts off screen: dead
+      if (!onLog || this.frog.x < 10 || this.frog.x > this.canvas.width - 10) {
+        this.triggerOver();
+        return;
+      }
+    } else if (this.frog.y === 20) {
+      // Goal banks checking
+      const goals = [60, 220, 340];
+      const landedGoal = goals.find(gx => Math.abs(this.frog.x - gx) < 20);
+      if (landedGoal !== undefined) {
+        score += 100;
+        sounds.playWin();
+        // Reset frog
+        this.frog.x = 220;
+        this.frog.y = 380;
+      } else {
+        this.triggerOver();
+      }
+    }
+  }
+
+  triggerOver() {
+    this.gameOver = true;
+    sounds.playHit();
+    setTimeout(() => {
+      triggerGameOver();
+    }, 800);
+  }
+
+  draw(ctx) {
+    // 1. Draw River (deep blue)
+    ctx.fillStyle = '#0a1033';
+    ctx.fillRect(0, 40, this.canvas.width, 120);
+
+    // 2. Draw Highway (darkest grey)
+    ctx.fillStyle = '#07050d';
+    ctx.fillRect(0, 200, this.canvas.width, 160);
+
+    // 3. Draw separating dotted highway lines
+    ctx.strokeStyle = '#241b3f';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 8]);
+    for (let y = 240; y < 360; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(this.canvas.width, y);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]); // Reset line dash
+
+    // 4. Draw Grass Zones (Starting Row & Divider Row)
+    ctx.fillStyle = '#18122b';
+    ctx.fillRect(0, 360, this.canvas.width, 40);
+    ctx.fillRect(0, 160, this.canvas.width, 40);
+
+    // Neon borders for Grass zones
+    ctx.strokeStyle = '#ff007f'; // neon pink
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, 360); ctx.lineTo(this.canvas.width, 360);
+    ctx.moveTo(0, 160); ctx.lineTo(this.canvas.width, 160);
+    ctx.moveTo(0, 200); ctx.lineTo(this.canvas.width, 200);
+    ctx.stroke();
+
+    // 5. Draw Goal Bank (Row 0)
+    ctx.fillStyle = '#18122b';
+    ctx.fillRect(0, 0, this.canvas.width, 40);
+    
+    // Draw 3 Safe Bays
+    const goals = [60, 220, 340];
+    ctx.fillStyle = '#0a1033'; // River blue for bays
+    goals.forEach(gx => {
+      ctx.fillRect(gx - 20, 0, 40, 40);
+      ctx.strokeStyle = '#00f0ff'; // Neon cyan border for bays
+      ctx.lineWidth = 2;
+      ctx.strokeRect(gx - 20, 0, 40, 40);
+    });
+
+    // Outer bank border
+    ctx.strokeStyle = '#ff007f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, 40); ctx.lineTo(this.canvas.width, 40);
+    ctx.stroke();
+
+    // 6. Draw Logs (River)
+    this.logs.forEach(l => {
+      ctx.fillStyle = '#ff6c00'; // neon orange wood logs
+      ctx.fillRect(l.x, l.y + 6, l.w, l.h);
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(l.x, l.y + 6, l.w, l.h);
+    });
+
+    // 7. Draw Vehicles (Highway)
+    this.obstacles.forEach(o => {
+      ctx.fillStyle = o.color;
+      ctx.fillRect(o.x, o.y + 8, o.w, o.h);
+      
+      // Draw neon headlights/wheels to look futuristic
+      ctx.fillStyle = '#ffffff'; // headlights
+      if (o.speed < 0) {
+        ctx.fillRect(o.x + 2, o.y + 10, 3, 3);
+        ctx.fillRect(o.x + 2, o.y + o.h + 1, 3, 3);
+      } else {
+        ctx.fillRect(o.x + o.w - 5, o.y + 10, 3, 3);
+        ctx.fillRect(o.x + o.w - 5, o.y + o.h + 1, 3, 3);
+      }
+    });
+
+    // 8. Draw Player (Frog)
+    ctx.fillStyle = '#39ff14'; // neon green body
+    ctx.fillRect(this.frog.x - 10, this.frog.y - 10, 20, 20);
+    
+    // Eyes
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(this.frog.x - 8, this.frog.y - 12, 4, 4);
+    ctx.fillRect(this.frog.x + 4, this.frog.y - 12, 4, 4);
+    ctx.fillStyle = '#ff007f'; // pink pupils
+    ctx.fillRect(this.frog.x - 7, this.frog.y - 12, 2, 2);
+    ctx.fillRect(this.frog.x + 5, this.frog.y - 12, 2, 2);
+
+    // Legs
+    ctx.fillStyle = '#22cc0d';
+    ctx.fillRect(this.frog.x - 13, this.frog.y - 6, 3, 12);
+    ctx.fillRect(this.frog.x + 10, this.frog.y - 6, 3, 12);
   }
 
   cleanup() {}

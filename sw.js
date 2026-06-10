@@ -1,4 +1,4 @@
-const CACHE_NAME = 'retro-pocket-v20';
+const CACHE_NAME = 'retro-pocket-v21';
 const ASSETS = [
   './',
   './index.html',

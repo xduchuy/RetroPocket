@@ -217,6 +217,9 @@
         <!-- Canvas Container -->
         <div class="canvas-container">
           <canvas id="gameCanvas" width="400" height="400"></canvas>
+          <div class="bezel-brand">
+            <span class="bezel-icon">✚</span> RETROPOCKET
+          </div>
           
           <!-- Instructions overlay overlay -->
           <div id="instructionsOverlay" class="instructions-overlay">
@@ -273,6 +276,30 @@
             </div>
           </div>
           
+        </div>
+
+        <!-- Console System Controls (Game Boy Select/Start, Speaker & Branding) -->
+        <div class="console-system-controls">
+          <div class="system-buttons">
+            <div class="system-btn-wrapper">
+              <button id="consoleSelectBtn" class="console-sys-btn select-btn" title="Back to Menu"></button>
+              <span class="sys-label">SELECT</span>
+            </div>
+            <div class="system-btn-wrapper">
+              <button id="consoleStartBtn" class="console-sys-btn start-btn" title="Pause Game"></button>
+              <span class="sys-label">START</span>
+            </div>
+          </div>
+          <div class="console-footer">
+            <div class="speaker-grill">
+              <div class="grill-line"></div>
+              <div class="grill-line"></div>
+              <div class="grill-line"></div>
+              <div class="grill-line"></div>
+              <div class="grill-line"></div>
+            </div>
+            <div class="branding-text">8-BIT GAMING</div>
+          </div>
         </div>
       </section>
 
@@ -340,6 +367,8 @@
           <button id="goRestartBtn" class="retro-btn w-full"><span class="btn-text">PLAY AGAIN</span></button>
           <button id="goQuitBtn" class="retro-btn w-full danger-btn"><span class="btn-text">BACK TO ARCADE</span></button>
         </div>
+      </div>
+    </div>
     <!-- MODAL 4: GENERAL HELP -->
     <div id="helpModal" class="modal-overlay">
       <div class="retro-modal">

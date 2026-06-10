@@ -1020,3 +1020,378 @@ body {
   0% { transform: scale(0.85); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
+
+/* ==========================================================================
+   GAME BOY DMG-01 STYLE OVERRIDES (PLAYING MODE)
+   ========================================================================== */
+
+/* 1. Body background adjustment when playing */
+body.playing-mode {
+  background-color: #1a1a1c;
+  background-image: radial-gradient(circle, #2d2f34 10%, transparent 11%),
+                    radial-gradient(circle, #2d2f34 10%, transparent 11%);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+}
+
+/* 2. Console Body / Cabinet Frame */
+.playing-mode .arcade-cabinet {
+  background-color: #c4c5c9; /* DMG-01 Classic Gray */
+  border: 6px solid #e0e1e5;
+  border-top-color: #f2f3f7;
+  border-left-color: #f2f3f7;
+  border-right-color: #9ea0a4;
+  border-bottom-color: #9ea0a4;
+  border-radius: 20px;
+  box-shadow: 
+    inset 2px 2px 0px #ffffff, 
+    inset -2px -2px 0px #707276,
+    0 15px 35px rgba(0, 0, 0, 0.6);
+  max-width: 460px;
+  height: 96dvh;
+  margin: auto;
+  overflow: hidden;
+  justify-content: flex-start;
+}
+
+/* 3. Screen Bezel & HUD Layout */
+.playing-mode .game-hud {
+  background-color: #232527; /* Dark bezel color */
+  border: 4px solid #18191b;
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  margin-bottom: 0;
+  padding: 8px 15px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.playing-mode .game-hud .hud-game-title {
+  color: #ff3333; /* matching neon red */
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  text-shadow: 0 0 2px rgba(255, 51, 51, 0.4);
+}
+
+.playing-mode .game-hud .score-display {
+  color: #c4c5c9; /* grey text inside bezel */
+  font-family: var(--font-pixel);
+  font-size: 8px;
+}
+
+.playing-mode .game-hud .high-score {
+  color: #ffcc00; /* gold-yellow for high score */
+}
+
+/* Hide exit, pause and help buttons from the top HUD on mobile/console */
+.playing-mode #exitGameBtn,
+.playing-mode #pauseGameBtn,
+.playing-mode #helpGameBtn {
+  display: none !important;
+}
+
+/* 4. Bezel & Canvas Area */
+.playing-mode .canvas-container {
+  border: 4px solid #18191b;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  background-color: #232527;
+  padding: 10px 10px 36px 10px; /* Space at bottom for bezel logo */
+  margin-bottom: 20px;
+  box-shadow: none;
+  overflow: visible; /* to allow the brand text to position absolute cleanly */
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px));
+}
+
+.playing-mode .bezel-brand {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  font-weight: bold;
+  color: #ff3333; /* Neon Red */
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 1px rgba(255, 51, 51, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.playing-mode .bezel-icon {
+  color: #ff3333;
+  font-size: 10px;
+}
+
+/* 5. Mobile Controller container adjustment */
+.playing-mode .mobile-controller {
+  min-height: 150px;
+  margin-top: 0;
+  padding-bottom: 10px;
+  flex: 1;
+}
+
+/* 6. D-PAD Cross styling */
+.playing-mode .dpad-grid {
+  gap: 0px; /* Merge buttons */
+  justify-content: center;
+}
+
+.playing-mode .dpad-btn {
+  background-color: #2e2e30; /* Solid matte black/charcoal */
+  border: none;
+  color: #111;
+  font-size: 18px;
+  box-shadow: 
+    inset 1px 1px 1px rgba(255, 255, 255, 0.1), 
+    inset -1px -1px 2px rgba(0, 0, 0, 0.7),
+    2px 2px 4px rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.playing-mode .dpad-btn:active {
+  background-color: #1a1a1c;
+  box-shadow: 
+    inset -1px -1px 1px rgba(255, 255, 255, 0.1), 
+    inset 2px 2px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Shape the cross corners */
+.playing-mode #dpadUp {
+  border-radius: 6px 6px 0 0;
+}
+.playing-mode #dpadDown {
+  border-radius: 0 0 6px 6px;
+}
+.playing-mode #dpadLeft {
+  border-radius: 6px 0 0 6px;
+}
+.playing-mode #dpadRight {
+  border-radius: 0 6px 6px 0;
+}
+.playing-mode .dpad-center {
+  background-color: #2e2e30;
+  border: none;
+  box-shadow: none;
+}
+
+/* 7. Action Group (Recess & Buttons) */
+.playing-mode .lr-action-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 15px;
+  gap: 15px;
+}
+
+.playing-mode .action-group {
+  display: flex;
+  flex-direction: row-reverse; /* Put B (secondary) on left, A (primary) on right */
+  background-color: #b0b1b5; /* Slightly darker grey recess */
+  border-radius: 35px;
+  padding: 6px 12px;
+  gap: 12px;
+  transform: rotate(-15deg); /* slanted action buttons slot */
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.3), 
+    1px 1px 0px rgba(255, 255, 255, 0.3);
+}
+
+.playing-mode .action-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%; /* Make them perfect circles */
+  background-color: #a81b32; /* Deep Magenta/Red plastic */
+  border: 1px solid #7c1223;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 
+    inset 2px 2px 1px rgba(255, 255, 255, 0.25),
+    inset -2px -2px 2px rgba(0, 0, 0, 0.4),
+    0 4px 5px rgba(0, 0, 0, 0.3);
+  transform: rotate(15deg); /* Counter-rotate text so letters A/B look upright */
+  position: relative;
+  cursor: pointer;
+}
+
+.playing-mode .action-btn:active {
+  background-color: #8c1326;
+  box-shadow: 
+    inset -1px -1px 1px rgba(255, 255, 255, 0.1),
+    inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+  transform: rotate(15deg) translate(1px, 1px);
+}
+
+/* 8. Movement Group (Horizontal D-Pad style Left/Right) */
+.playing-mode .movement-group {
+  display: flex;
+  gap: 0;
+  align-items: center;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+}
+
+.playing-mode .move-btn {
+  width: 58px;
+  height: 52px;
+  background-color: #2e2e30;
+  border: none;
+  color: #111;
+  font-size: 16px;
+  box-shadow: 
+    inset 1px 1px 1px rgba(255, 255, 255, 0.1), 
+    inset -1px -1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.playing-mode .move-btn:active {
+  background-color: #1a1a1c;
+  box-shadow: 
+    inset -1px -1px 1px rgba(255, 255, 255, 0.1), 
+    inset 2px 2px 3px rgba(0, 0, 0, 0.8);
+}
+
+.playing-mode #btnMoveLeft {
+  border-radius: 6px 0 0 6px;
+}
+
+.playing-mode #btnMoveRight {
+  border-radius: 0 6px 6px 0;
+}
+
+/* 9. Jump Button for Pixel Runner */
+.playing-mode .jump-layout {
+  padding: 0 15px;
+}
+
+.playing-mode .jump-btn {
+  height: 64px;
+  border-radius: 12px;
+  background-color: #a81b32;
+  border: 1px solid #7c1223;
+  color: #ffffff;
+  font-size: 14px;
+  box-shadow: 
+    inset 2px 2px 1px rgba(255, 255, 255, 0.25),
+    inset -2px -2px 2px rgba(0, 0, 0, 0.4),
+    0 4px 5px rgba(0, 0, 0, 0.3);
+}
+
+.playing-mode .jump-btn:active {
+  background-color: #8c1326;
+  box-shadow: 
+    inset -1px -1px 1px rgba(255, 255, 255, 0.1),
+    inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* 10. Rubber System Buttons (SELECT / START) */
+.console-system-controls {
+  display: none;
+  width: 100%;
+  max-width: 440px;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  gap: 15px;
+}
+
+.playing-mode .console-system-controls {
+  display: flex;
+}
+
+.system-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+}
+
+.system-btn-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.console-sys-btn {
+  width: 44px;
+  height: 12px;
+  background-color: #7c7e82; /* Rubber grey */
+  border: 1px solid #55585b;
+  border-radius: 6px;
+  transform: rotate(-15deg);
+  box-shadow: 
+    inset 1px 1px 1px rgba(255, 255, 255, 0.2), 
+    inset -1px -1px 1px rgba(0, 0, 0, 0.5),
+    1px 2px 2px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  outline: none;
+}
+
+.console-sys-btn:active {
+  background-color: #64666a;
+  box-shadow: 
+    inset -1px -1px 1px rgba(255, 255, 255, 0.1), 
+    inset 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.sys-label {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: #3f4246;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* 11. Console Footer (Speaker Grill & Branding) */
+.console-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 24px;
+  margin-top: 5px;
+}
+
+.speaker-grill {
+  display: flex;
+  gap: 5px;
+  transform: rotate(-28deg); /* Classic slanted slots */
+  margin-bottom: 5px;
+}
+
+.grill-line {
+  width: 5px;
+  height: 32px;
+  background-color: #9da0a4; /* Recessed grill dark color */
+  border-radius: 2.5px;
+  box-shadow: 
+    inset 1px 1px 1px rgba(0, 0, 0, 0.4), 
+    1px 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.branding-text {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: #3f4246;
+  font-weight: bold;
+  letter-spacing: 0.8px;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.15);
+  margin-bottom: 2px;
+}
+
+/* 12. Adjust modals positioning in playing-mode */
+.playing-mode .modal-overlay {
+  z-index: 2000;
+}

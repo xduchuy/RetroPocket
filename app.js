@@ -144,6 +144,8 @@ const DOM = {
   closeHelpBtn: document.getElementById('closeHelpBtn'),
   goRestartBtn: document.getElementById('goRestartBtn'),
   goQuitBtn: document.getElementById('goQuitBtn'),
+  consoleSelectBtn: document.getElementById('consoleSelectBtn'),
+  consoleStartBtn: document.getElementById('consoleStartBtn'),
 };
 
 // ----------------------------------------------------
@@ -693,6 +695,20 @@ DOM.exitGameBtn.addEventListener('click', () => {
 });
 
 DOM.pauseGameBtn.addEventListener('click', () => {
+  sounds.playClick();
+  pauseGame();
+});
+
+// Game Boy Console System Buttons
+DOM.consoleSelectBtn.addEventListener('click', () => {
+  sounds.playClick();
+  terminateActiveGame();
+  DOM.gameScreen.classList.remove('active');
+  DOM.menuScreen.classList.add('active');
+  appState = STATE.menu;
+});
+
+DOM.consoleStartBtn.addEventListener('click', () => {
   sounds.playClick();
   pauseGame();
 });

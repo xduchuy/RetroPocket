@@ -921,7 +921,8 @@ class SnakeGame {
     this.powerup = { x: rx, y: ry, type, timer: 6000 };
   }
 
-  handleInput(key) {
+  handleInput(key, type) {
+    if (type !== 'keydown') return;
     if ((key === 'ArrowUp' || key === 'w' || key === 'W') && this.dir.y === 0) {
       this.nextDir = { x: 0, y: -1 };
     } else if ((key === 'ArrowDown' || key === 's' || key === 'S') && this.dir.y === 0) {
@@ -1569,8 +1570,8 @@ class SpaceDefenderGame {
     }
   }
 
-  handleInput(key) {
-    if (key === 'ArrowUp' || key === ' ' || key === 'w' || key === 'W') {
+  handleInput(key, type) {
+    if (type === 'keydown' && (key === 'ArrowUp' || key === ' ' || key === 'w' || key === 'W')) {
       this.fireLaser();
     }
   }
@@ -3372,7 +3373,8 @@ class PixelGobblerGame {
     }
   }
 
-  handleInput(key) {
+  handleInput(key, type) {
+    if (type !== 'keydown') return;
     if (key === 'ArrowUp' || key === 'w' || key === 'W') {
       this.nextDir = { x: 0, y: -1 };
     } else if (key === 'ArrowDown' || key === 's' || key === 'S') {

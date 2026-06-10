@@ -3471,15 +3471,38 @@ class PixelGobblerGame {
   }
 
   handleInput(key, type) {
-    if (type !== 'keydown') return;
-    if (key === 'ArrowUp' || key === 'w' || key === 'W') {
-      this.nextDir = { x: 0, y: -1 };
-    } else if (key === 'ArrowDown' || key === 's' || key === 'S') {
-      this.nextDir = { x: 0, y: 1 };
-    } else if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
-      this.nextDir = { x: -1, y: 0 };
-    } else if (key === 'ArrowRight' || key === 'd' || key === 'D') {
-      this.nextDir = { x: 1, y: 0 };
+    if (type === 'keydown') {
+      if (key === 'ArrowUp' || key === 'w' || key === 'W') {
+        this.nextDir = { x: 0, y: -1 };
+      } else if (key === 'ArrowDown' || key === 's' || key === 'S') {
+        this.nextDir = { x: 0, y: 1 };
+      } else if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
+        this.nextDir = { x: -1, y: 0 };
+      } else if (key === 'ArrowRight' || key === 'd' || key === 'D') {
+        this.nextDir = { x: 1, y: 0 };
+      }
+    } else if (type === 'keyup') {
+      const isUp = key === 'ArrowUp' || key === 'w' || key === 'W';
+      const isDown = key === 'ArrowDown' || key === 's' || key === 'S';
+      const isLeft = key === 'ArrowLeft' || key === 'a' || key === 'A';
+      const isRight = key === 'ArrowRight' || key === 'd' || key === 'D';
+      
+      if (isUp && (this.nextDir.y === -1 || this.playerDir.y === -1)) {
+        this.nextDir = { x: 0, y: 0 };
+        this.playerDir = { x: 0, y: 0 };
+      }
+      if (isDown && (this.nextDir.y === 1 || this.playerDir.y === 1)) {
+        this.nextDir = { x: 0, y: 0 };
+        this.playerDir = { x: 0, y: 0 };
+      }
+      if (isLeft && (this.nextDir.x === -1 || this.playerDir.x === -1)) {
+        this.nextDir = { x: 0, y: 0 };
+        this.playerDir = { x: 0, y: 0 };
+      }
+      if (isRight && (this.nextDir.x === 1 || this.playerDir.x === 1)) {
+        this.nextDir = { x: 0, y: 0 };
+        this.playerDir = { x: 0, y: 0 };
+      }
     }
   }
 

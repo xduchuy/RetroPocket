@@ -137,9 +137,222 @@ const DOM = {
   finalScore: document.getElementById('finalScore'),
   finalHighScore: document.getElementById('finalHighScore'),
   newHighScoreAlert: document.getElementById('newHighScoreAlert'),
+  langToggle: document.getElementById('langToggle'),
   goRestartBtn: document.getElementById('goRestartBtn'),
   goQuitBtn: document.getElementById('goQuitBtn'),
 };
+
+// ----------------------------------------------------
+// 2.5 LANGUAGE LOCALIZATION SYSTEM
+// ----------------------------------------------------
+let locale = localStorage.getItem('arcade_lang') || 'en';
+
+const TRANSLATIONS = {
+  en: {
+    sound_on: 'SOUND ON',
+    sound_off: 'SOUND OFF',
+    leaderboard: 'LEADERBOARD',
+    random: 'RANDOM',
+    welcome: 'INSERT COIN TO SELECT GAME',
+    play_now: 'PLAY NOW',
+    exit_game: '◀ MENU',
+    pause_game: '⏸ PAUSE',
+    score: 'SCORE:',
+    hi_score: 'HI-SCORE:',
+    get_ready: 'GET READY',
+    start: 'START',
+    reset_all: 'RESET ALL',
+    close: 'CLOSE',
+    confirm_reset: 'RESET ALL HIGH SCORES TO ZERO? Are you sure?',
+    game_paused: 'GAME PAUSED',
+    continue: 'CONTINUE',
+    restart: 'RESTART',
+    quit: 'BACK TO ARCADE',
+    game_over: 'GAME OVER',
+    final_score: 'SCORE:',
+    final_hi_score: 'HI-SCORE:',
+    new_hi_score: 'NEW HIGH SCORE!',
+    play_again: 'PLAY AGAIN',
+    back_to_arcade: 'BACK TO ARCADE',
+    
+    lbl_rotate: 'ROTATE',
+    lbl_drop: 'DROP',
+    lbl_fire: 'FIRE',
+    lbl_jump: 'JUMP',
+    lbl_flap: 'FLAP',
+    lbl_stack: 'STACK',
+    
+    desc_snake: 'Eat neon apples, avoid your tail, and watch out for golden power-ups!',
+    desc_blocks: 'Align falling neon blocks, clear rows, and clear high score milestones.',
+    desc_paddle: 'Bounce the energy ball to break pixel brick rows. Snatch power-ups!',
+    desc_defender: 'Shoot descending space debris, dodge asteroids, and upgrade lasers.',
+    desc_memory: 'Flip retro cards to match sets of pixel swords, shields, coins, and shields.',
+    desc_runner: 'Leap over spike pits and dodge high obstacles. Keep running!',
+    desc_minesweeper: 'Uncover safe grids, scan neighbors, and flag hidden spikes!',
+    desc_flappy: 'Flap through barriers and pipes. Gauge your speed and stay aloft!',
+    desc_frog: 'Hop across busy lanes and floating logs to reach safety. Time your moves!',
+    desc_racer: 'Dodge traffic, change lanes, and speed down a neon-lit highway!',
+    desc_gobbler: 'Munch all neon dots in the maze and escape the chasing red ghost!',
+    desc_stacker: 'Align moving blocks carefully to build the tallest tower possible!',
+    
+    instruct_snake: 'Navigate the grid. Eat green/gold apples. Do not crash!',
+    instruct_blocks: 'Move blocks. Rotate to align rows and clear lines.',
+    instruct_paddle: 'Bounce the square ball. Smash bricks. Grab glowing items.',
+    instruct_defender: 'Defend the grid from asteroids and space alien invasions.',
+    instruct_memory: 'Tap tiles. Pair identical icons. Avoid mistakes.',
+    instruct_runner: 'Jump over red spikes and birds. Gain speed.',
+    instruct_minesweeper: 'Tap to dig. Hold (>350ms) to flag. Safe first click!',
+    instruct_flappy: 'Press FLAP or Spacebar/Tap Screen to fly. Fly through the neon pipes!',
+    instruct_frog: 'Hop across highway lanes and logs to reach the neon bays. Avoid cars and water!',
+    instruct_racer: 'Dodge oncoming neon cars! Move left/right to change lanes.',
+    instruct_gobbler: 'Eat all neon dots. Avoid the red chasing ghost!',
+    instruct_stacker: 'Press STACK or Spacebar to place the moving row. Align them perfectly!',
+    
+    title_snake: 'SNAKE PIXEL',
+    title_blocks: 'BLOCK DROP',
+    title_paddle: 'PADDLE BOUNCE',
+    title_defender: 'SPACE DEFENDER',
+    title_memory: 'MEMORY TILES',
+    title_runner: 'PIXEL RUNNER',
+    title_minesweeper: 'MINESWEEPER RETRO',
+    title_flappy: 'FLAPPY PIXEL',
+    title_frog: 'PIXEL HOP',
+    title_racer: 'PIXEL RACER',
+    title_gobbler: 'PIXEL GOBBLER',
+    title_stacker: 'PIXEL STACKER'
+  },
+  vi: {
+    sound_on: 'BẬT ÂM',
+    sound_off: 'TẤT ÂM',
+    leaderboard: 'BXH',
+    random: 'NGẪU NHIÊN',
+    welcome: 'BỎ XU ĐỂ CHỌN GAME',
+    play_now: 'CHƠI NGAY',
+    exit_game: '◀ MENU',
+    pause_game: 'TẠM DỪNG',
+    score: 'ĐIỂM SỐ:',
+    hi_score: 'KỶ LỤC:',
+    get_ready: 'CHUẨN BỊ',
+    start: 'BẮT ĐẦU',
+    reset_all: 'ĐẶT LẠI',
+    close: 'ĐÓNG',
+    confirm_reset: 'ĐẶT LẠI TẤT CẢ ĐIỂM CAO VỀ KHÔNG? Bạn có chắc chắn không?',
+    game_paused: 'GAME TẠM DỪNG',
+    continue: 'TIẾP TỤC',
+    restart: 'CHƠI LẠI',
+    quit: 'THOÁT GAME',
+    game_over: 'KẾT THÚC',
+    final_score: 'ĐIỂM SỐ:',
+    final_hi_score: 'KỶ LỤC:',
+    new_hi_score: 'KỶ LỤC MỚI!',
+    play_again: 'CHƠI LẠI',
+    back_to_arcade: 'THOÁT GAME',
+    
+    lbl_rotate: 'XOAY',
+    lbl_drop: 'THẢ',
+    lbl_fire: 'BẮN',
+    lbl_jump: 'NHẢY',
+    lbl_flap: 'BAY',
+    lbl_stack: 'XẾP',
+    
+    desc_snake: 'Ăn táo neon, né đuôi rắn, săn vật phẩm vàng!',
+    desc_blocks: 'Sắp xếp khối gạch rơi, xóa hàng ngang và đạt điểm cao.',
+    desc_paddle: 'Đỡ bóng phá gạch pixel, nhặt vật phẩm tăng sức mạnh!',
+    desc_defender: 'Bắn thiên thạch và tàu ngoài hành tinh rơi xuống!',
+    desc_memory: 'Lật thẻ tìm cặp hình pixel giống nhau.',
+    desc_runner: 'Nhảy qua hố gai và chướng ngại vật bay. Chạy không ngừng!',
+    desc_minesweeper: 'Mở ô trống an toàn, quét bom lân cận và cắm cờ quả mìn!',
+    desc_flappy: 'Bay qua các cột ống khói neon và giữ thăng bằng!',
+    desc_frog: 'Vượt đường lộ và sông sâu để về tổ an toàn!',
+    desc_racer: 'Lách xe qua dòng phương tiện đông đúc trên cao tốc!',
+    desc_gobbler: 'Ăn hết chấm vàng trong mê cung và chạy trốn bóng ma!',
+    desc_stacker: 'Xếp chồng các khối gạch di động thẳng hàng để xây tháp!',
+    
+    instruct_snake: 'Di chuyển trong lưới. Ăn táo xanh/vàng. Đừng đâm vào đuôi!',
+    instruct_blocks: 'Di chuyển khối gạch. Xoay khối để xếp kín và xóa hàng.',
+    instruct_paddle: 'Đỡ bóng năng lượng phá gạch. Nhặt vật phẩm phát sáng.',
+    instruct_defender: 'Bảo vệ căn cứ chống thiên thạch và người ngoài hành tinh.',
+    instruct_memory: 'Chạm các ô. Tìm các cặp biểu tượng giống nhau. Đừng chọn sai nhiều!',
+    instruct_runner: 'Nhảy tránh chông đỏ và quạ bay. Tăng dần tốc độ.',
+    instruct_minesweeper: 'Nhấn để đào ô. Đè (>350ms) để cắm cờ. Nhấp đầu tiên luôn an toàn!',
+    instruct_flappy: 'Nhấn BAY hoặc phím Cách/Chạm màn hình để cất cánh qua các đường ống!',
+    instruct_frog: 'Nhảy qua làn xe và thân gỗ trên sông để về tổ an toàn!',
+    instruct_racer: 'Tránh các ô tô neon ngược chiều! Nhấn trái/phải để chuyển làn.',
+    instruct_gobbler: 'Ăn tất cả các chấm neon. Né tránh con ma đỏ đuổi theo!',
+    instruct_stacker: 'Nhấn XẾP hoặc phím Cách để đặt hàng gạch. Căn chỉnh thật chuẩn!',
+    
+    title_snake: 'RẮN SĂN MỒI',
+    title_blocks: 'XẾP GẠCH',
+    title_paddle: 'PHÁ GẠCH',
+    title_defender: 'BẮN THIÊN THẠCH',
+    title_memory: 'LẬT THẺ',
+    title_runner: 'CHẠY NEON',
+    title_minesweeper: 'DÒ MÌN',
+    title_flappy: 'FLAPPY PIXEL',
+    title_frog: 'ẾCH BĂNG SÔNG',
+    title_racer: 'ĐUA XE NEON',
+    title_gobbler: 'ĂN CHẤM VÀNG',
+    title_stacker: 'XẾP THÁP'
+  }
+};
+
+function getTranslation(key) {
+  return TRANSLATIONS[locale][key] || TRANSLATIONS['en'][key] || key;
+}
+
+function updateModalTitle(modal, text) {
+  const title = modal.querySelector('.modal-title');
+  if (title) {
+    title.textContent = text;
+    title.setAttribute('data-text', text);
+  }
+}
+
+function applyLanguage() {
+  DOM.langToggle.querySelector('.btn-text').textContent = `🌐 ${locale.toUpperCase()}`;
+  DOM.hofButton.querySelector('.btn-text').textContent = getTranslation('leaderboard');
+  DOM.randomGameBtn.querySelector('.btn-text').textContent = getTranslation('random');
+  DOM.soundToggle.querySelector('.btn-text').textContent = `${sounds.enabled ? '🔊' : '🔇'} ${getTranslation(sounds.enabled ? 'sound_on' : 'sound_off')}`;
+  document.getElementById('welcomeText').textContent = getTranslation('welcome');
+  
+  document.querySelectorAll('.game-card').forEach(card => {
+    const key = card.dataset.game;
+    card.querySelector('.game-desc').textContent = getTranslation(`desc_${key}`);
+    card.querySelector('.play-btn .btn-text').textContent = getTranslation('play_now');
+  });
+  
+  document.getElementById('hudScoreLabel').textContent = getTranslation('score');
+  document.getElementById('hudHighScoreLabel').textContent = getTranslation('hi_score');
+  DOM.exitGameBtn.querySelector('.btn-text').textContent = getTranslation('exit_game');
+  DOM.pauseGameBtn.querySelector('.btn-text').textContent = getTranslation('pause_game');
+  
+  updateModalTitle(DOM.hofModal, getTranslation('leaderboard'));
+  DOM.resetScoresBtn.querySelector('.btn-text').textContent = getTranslation('reset_all');
+  DOM.closeHofBtn.querySelector('.btn-text').textContent = getTranslation('close');
+  
+  updateModalTitle(DOM.pauseModal, getTranslation('game_paused'));
+  DOM.resumeBtn.querySelector('.btn-text').textContent = getTranslation('continue');
+  DOM.restartBtn.querySelector('.btn-text').textContent = getTranslation('restart');
+  DOM.quitBtn.querySelector('.btn-text').textContent = getTranslation('quit');
+  
+  updateModalTitle(DOM.gameOverModal, getTranslation('game_over'));
+  document.getElementById('labelFinalScore').textContent = getTranslation('final_score');
+  document.getElementById('labelFinalHighScore').textContent = getTranslation('final_hi_score');
+  DOM.newHighScoreAlert.textContent = getTranslation('new_hi_score');
+  DOM.goRestartBtn.querySelector('.btn-text').textContent = getTranslation('play_again');
+  DOM.goQuitBtn.querySelector('.btn-text').textContent = getTranslation('back_to_arcade');
+  
+  DOM.instructionsOverlay.querySelector('.instruct-title').textContent = getTranslation('get_ready');
+  DOM.startGameBtn.querySelector('.btn-text').textContent = getTranslation('start');
+  
+  if (activeGameKey) {
+    DOM.instructionText.textContent = getTranslation(`instruct_${activeGameKey}`);
+    DOM.activeGameTitle.textContent = getTranslation(`title_${activeGameKey}`);
+  }
+}
+
+// Call on startup once the DOM binds are set
+setTimeout(applyLanguage, 0);
 
 let activeGameKey = null;
 let activeGame = null;
@@ -172,17 +385,24 @@ function setHighScore(gameKey, val) {
 }
 
 // ----------------------------------------------------
-// 3. SOUND TOGGLE CONTROL
+// 3. SOUND AND LANGUAGE CONTROLS
 // ----------------------------------------------------
 DOM.soundToggle.addEventListener('click', () => {
   sounds.enabled = !sounds.enabled;
   sounds.playClick();
-  DOM.soundToggle.innerHTML = `<span class="btn-text">🔊 SOUND ${sounds.enabled ? 'ON' : 'OFF'}</span>`;
+  DOM.soundToggle.innerHTML = `<span class="btn-text">${sounds.enabled ? '🔊' : '🔇'} ${getTranslation(sounds.enabled ? 'sound_on' : 'sound_off')}</span>`;
   if (!sounds.enabled) {
     DOM.soundToggle.classList.add('danger-btn');
   } else {
     DOM.soundToggle.classList.remove('danger-btn');
   }
+});
+
+DOM.langToggle.addEventListener('click', () => {
+  locale = locale === 'en' ? 'vi' : 'en';
+  sounds.playClick();
+  localStorage.setItem('arcade_lang', locale);
+  applyLanguage();
 });
 
 // ----------------------------------------------------
@@ -216,7 +436,7 @@ DOM.closeHofBtn.addEventListener('click', () => {
 
 DOM.resetScoresBtn.addEventListener('click', () => {
   sounds.playClick();
-  if (confirm('RESET ALL HIGH SCORES TO ZERO? Are you sure?')) {
+  if (confirm(getTranslation('confirm_reset'))) {
     gamesList.forEach(k => setHighScore(k, 0));
     updateHofDisplay();
     sounds.playHit();
@@ -261,21 +481,7 @@ function launchGame(gameKey) {
   DOM.gameScreen.classList.add('active');
   document.body.classList.add('playing-mode');
   
-  const formattedNames = {
-    snake: 'SNAKE PIXEL',
-    blocks: 'BLOCK DROP',
-    paddle: 'PADDLE BOUNCE',
-    defender: 'SPACE DEFENDER',
-    memory: 'MEMORY TILES',
-    runner: 'PIXEL RUNNER',
-    minesweeper: 'MINESWEEPER RETRO',
-    flappy: 'FLAPPY PIXEL',
-    frog: 'PIXEL HOP',
-    racer: 'PIXEL RACER',
-    gobbler: 'PIXEL GOBBLER',
-    stacker: 'PIXEL STACKER'
-  };
-  DOM.activeGameTitle.textContent = formattedNames[gameKey];
+  DOM.activeGameTitle.textContent = getTranslation(`title_${gameKey}`);
   
   // Show high score
   DOM.activeHighScore.textContent = getHighScore(gameKey);
@@ -289,50 +495,49 @@ function launchGame(gameKey) {
 
   if (gameKey === 'snake') {
     DOM.ctrlDpad.classList.remove('hidden');
-    DOM.instructionText.textContent = "Navigate the grid. Eat green/gold apples. Do not crash!";
+    DOM.instructionText.textContent = getTranslation('instruct_snake');
   } else if (gameKey === 'blocks') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
-    document.getElementById('btnActionA').textContent = 'ROTATE';
-    document.getElementById('btnActionB').textContent = 'DROP';
-    DOM.instructionText.textContent = "Move blocks. Rotate to align rows and clear lines.";
+    document.getElementById('btnActionA').textContent = getTranslation('lbl_rotate');
+    document.getElementById('btnActionB').textContent = getTranslation('lbl_drop');
+    DOM.instructionText.textContent = getTranslation('instruct_blocks');
   } else if (gameKey === 'paddle') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
     document.getElementById('btnActionA').textContent = '---';
     document.getElementById('btnActionB').textContent = '---';
-    DOM.instructionText.textContent = "Bounce the square ball. Smash bricks. Grab glowing items.";
+    DOM.instructionText.textContent = getTranslation('instruct_paddle');
   } else if (gameKey === 'defender') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
-    document.getElementById('btnActionA').textContent = 'FIRE';
+    document.getElementById('btnActionA').textContent = getTranslation('lbl_fire');
     document.getElementById('btnActionB').textContent = '---';
-    DOM.instructionText.textContent = "Defend the grid from asteroids and space alien invasions.";
+    DOM.instructionText.textContent = getTranslation('instruct_defender');
   } else if (gameKey === 'memory') {
-    // Memory Tiles is tap-based on the canvas, hide keys
-    DOM.instructionText.textContent = "Tap tiles. Pair identical icons. Avoid mistakes.";
+    DOM.instructionText.textContent = getTranslation('instruct_memory');
   } else if (gameKey === 'runner') {
     DOM.ctrlJumpOnly.classList.remove('hidden');
-    DOM.instructionText.textContent = "Jump over red spikes and birds. Gain speed.";
+    document.getElementById('btnJumpAction').textContent = getTranslation('lbl_jump');
+    DOM.instructionText.textContent = getTranslation('instruct_runner');
   } else if (gameKey === 'minesweeper') {
-    // Tap based on canvas
-    DOM.instructionText.textContent = "Tap to dig. Hold (>350ms) to flag. Safe first click!";
+    DOM.instructionText.textContent = getTranslation('instruct_minesweeper');
   } else if (gameKey === 'flappy') {
     DOM.ctrlJumpOnly.classList.remove('hidden');
-    document.getElementById('btnJumpAction').textContent = 'FLAP';
-    DOM.instructionText.textContent = "Press FLAP or Spacebar/Tap Screen to fly. Fly through the neon pipes!";
+    document.getElementById('btnJumpAction').textContent = getTranslation('lbl_flap');
+    DOM.instructionText.textContent = getTranslation('instruct_flappy');
   } else if (gameKey === 'frog') {
     DOM.ctrlDpad.classList.remove('hidden');
-    DOM.instructionText.textContent = "Hop across highway lanes and logs to reach the neon bays. Avoid cars and water!";
+    DOM.instructionText.textContent = getTranslation('instruct_frog');
   } else if (gameKey === 'racer') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
     document.getElementById('btnActionA').textContent = '---';
     document.getElementById('btnActionB').textContent = '---';
-    DOM.instructionText.textContent = "Dodge oncoming neon cars! Move left/right to change lanes.";
+    DOM.instructionText.textContent = getTranslation('instruct_racer');
   } else if (gameKey === 'gobbler') {
     DOM.ctrlDpad.classList.remove('hidden');
-    DOM.instructionText.textContent = "Eat all neon dots. Avoid the red chasing ghost!";
+    DOM.instructionText.textContent = getTranslation('instruct_gobbler');
   } else if (gameKey === 'stacker') {
     DOM.ctrlJumpOnly.classList.remove('hidden');
-    document.getElementById('btnJumpAction').textContent = 'STACK';
-    DOM.instructionText.textContent = "Press STACK or Spacebar to place the moving row. Align them perfectly!";
+    document.getElementById('btnJumpAction').textContent = getTranslation('lbl_stack');
+    DOM.instructionText.textContent = getTranslation('instruct_stacker');
   }
   
   // Sync difficulty button highlights with the current global difficulty

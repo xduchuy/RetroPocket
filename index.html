@@ -32,6 +32,9 @@
       <!-- Quick Options Panel -->
       <div class="options-bar">
 
+        <button id="langToggle" class="retro-btn icon-btn" title="Toggle Language">
+          <span class="btn-text">🌐 EN</span>
+        </button>
 
         <button id="soundToggle" class="retro-btn icon-btn" title="Toggle Sound">
           <span class="btn-text">🔊 SOUND ON</span>
@@ -52,7 +55,7 @@
       
       <!-- SCREEN 1: HOME/MENU -->
       <section id="menuScreen" class="screen-section active">
-        <div class="welcome-text">INSERT COIN TO SELECT GAME</div>
+        <div id="welcomeText" class="welcome-text">INSERT COIN TO SELECT GAME</div>
         
         <div class="game-grid">
           <!-- Game 1: Snake Pixel -->
@@ -198,8 +201,8 @@
             <h2 id="activeGameTitle" class="hud-game-title cyan-text">GAME</h2>
           </div>
           <div class="hud-mid">
-            <div class="score-display">SCORE: <span id="currentScore">0</span></div>
-            <div class="score-display high-score">HI-SCORE: <span id="activeHighScore">0</span></div>
+            <div class="score-display"><span id="hudScoreLabel">SCORE:</span> <span id="currentScore">0</span></div>
+            <div class="score-display high-score"><span id="hudHighScoreLabel">HI-SCORE:</span> <span id="activeHighScore">0</span></div>
           </div>
           <div class="hud-right">
             <button id="pauseGameBtn" class="retro-btn small-btn" title="Pause"><span class="btn-text">⏸ PAUSE</span></button>
@@ -275,7 +278,7 @@
     <!-- MODAL 1: HALL OF FAME -->
     <div id="hofModal" class="modal-overlay">
       <div class="retro-modal">
-        <h2 class="modal-title neon-glow" data-text="HALL OF FAME">🏆 HALL OF FAME 🏆</h2>
+        <h2 id="hofTitle" class="modal-title neon-glow" data-text="HALL OF FAME">🏆 HALL OF FAME 🏆</h2>
         <div class="modal-content">
           <ul class="leaderboard-list">
             <li><span>SNAKE PIXEL</span><span id="scoreSnake">000</span></li>
@@ -302,7 +305,7 @@
     <!-- MODAL 2: PAUSE SCREEN -->
     <div id="pauseModal" class="modal-overlay">
       <div class="retro-modal text-center">
-        <h2 class="modal-title blink-text" data-text="GAME PAUSED">GAME PAUSED</h2>
+        <h2 id="pauseTitle" class="modal-title blink-text" data-text="GAME PAUSED">GAME PAUSED</h2>
         <div class="modal-content gap-md">
           <button id="resumeBtn" class="retro-btn w-full"><span class="btn-text">CONTINUE</span></button>
           <button id="restartBtn" class="retro-btn w-full"><span class="btn-text">RESTART</span></button>
@@ -314,15 +317,15 @@
     <!-- MODAL 3: GAME OVER -->
     <div id="gameOverModal" class="modal-overlay">
       <div class="retro-modal text-center">
-        <h2 class="modal-title neon-glow text-danger" data-text="GAME OVER">GAME OVER</h2>
+        <h2 id="gameOverTitle" class="modal-title neon-glow text-danger" data-text="GAME OVER">GAME OVER</h2>
         <div class="modal-content">
           <div class="gameover-stats">
             <div class="stat-row">
-              <span>SCORE:</span>
+              <span id="labelFinalScore">SCORE:</span>
               <span id="finalScore" class="stat-val text-cyan">0</span>
             </div>
             <div class="stat-row">
-              <span>HI-SCORE:</span>
+              <span id="labelFinalHighScore">HI-SCORE:</span>
               <span id="finalHighScore" class="stat-val text-yellow">0</span>
             </div>
             <div id="newHighScoreAlert" class="new-highscore-badge hidden">NEW HIGH SCORE!</div>

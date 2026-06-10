@@ -152,6 +152,7 @@ let isPaused = false;
 
 // Key states tracking
 const keysPressed = {};
+let activeTouchKeys = new Set();
 
 // Prevent scrolling when pressing mobile controls
 DOM.mobileController.addEventListener('touchstart', (e) => {
@@ -325,6 +326,7 @@ function initActiveGame() {
   for (const k in keysPressed) {
     keysPressed[k] = false;
   }
+  activeTouchKeys.clear();
   
   if (activeGameKey === 'snake') activeGame = new SnakeGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'blocks') activeGame = new BlockDropGame(DOM.canvas, difficulty);
@@ -426,6 +428,7 @@ function terminateActiveGame() {
   for (const k in keysPressed) {
     keysPressed[k] = false;
   }
+  activeTouchKeys.clear();
 }
 
 // ----------------------------------------------------
@@ -491,14 +494,58 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
-// Unified Mouse and Touch Button Emulation
+const handleControllerTouch = (e) => {
+  e.preventDefault(); // Prevent double tap zoom / scrolling
+  
+  if (appState !== STATE.playing || !activeGame) return;
+  
+  const currentTouchKeys = new Set();
+  
+  // Find which keys are currently touched
+  for (let i = 0; i < e.touches.length; i++) {
+    const touch = e.touches[i];
+    let target = document.elementFromPoint(touch.clientX, touch.clientY);
+    while (target && !target.dataset.key && target !== document.body) {
+      target = target.parentElement;
+    }
+    if (target && target.dataset.key) {
+      currentTouchKeys.add(target.dataset.key);
+    }
+  }
+  
+  // Trigger keyup for keys that are no longer touched
+  activeTouchKeys.forEach(k => {
+    if (!currentTouchKeys.has(k)) {
+      activeGame.handleInput(k, 'keyup');
+      keysPressed[k] = false;
+    }
+  });
+  
+  // Trigger keydown for newly touched keys
+  currentTouchKeys.forEach(k => {
+    if (!activeTouchKeys.has(k)) {
+      activeGame.handleInput(k, 'keydown');
+      keysPressed[k] = true;
+    }
+  });
+  
+  activeTouchKeys = currentTouchKeys;
+};
+
+// Bind touch events to the container (allows sliding across D-pad & movement keys)
+DOM.mobileController.addEventListener('touchstart', handleControllerTouch, { passive: false });
+DOM.mobileController.addEventListener('touchmove', handleControllerTouch, { passive: false });
+DOM.mobileController.addEventListener('touchend', handleControllerTouch, { passive: false });
+DOM.mobileController.addEventListener('touchcancel', handleControllerTouch, { passive: false });
+
+// Keep mouse events for desktop users
 const vBtns = document.querySelectorAll('.ctrl-btn');
 vBtns.forEach(btn => {
   const k = btn.dataset.key;
   if (!k) return;
   
   const triggerStart = (e) => {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     if (appState === STATE.playing && activeGame) {
       activeGame.handleInput(k, 'keydown');
       keysPressed[k] = true;
@@ -506,15 +553,13 @@ vBtns.forEach(btn => {
   };
   
   const triggerEnd = (e) => {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     if (appState === STATE.playing && activeGame) {
       activeGame.handleInput(k, 'keyup');
       keysPressed[k] = false;
     }
   };
 
-  btn.addEventListener('touchstart', triggerStart, { passive: false });
-  btn.addEventListener('touchend', triggerEnd, { passive: false });
   btn.addEventListener('mousedown', triggerStart);
   btn.addEventListener('mouseup', triggerEnd);
   btn.addEventListener('mouseleave', triggerEnd);
@@ -558,6 +603,13 @@ DOM.canvas.addEventListener('touchstart', (e) => {
 }, { passive: false });
 
 DOM.canvas.addEventListener('touchend', (e) => {
+  if (appState === STATE.playing && activeGame && activeGame.handleTouchEnd) {
+    e.preventDefault();
+    activeGame.handleTouchEnd();
+  }
+}, { passive: false });
+
+DOM.canvas.addEventListener('touchcancel', (e) => {
   if (appState === STATE.playing && activeGame && activeGame.handleTouchEnd) {
     e.preventDefault();
     activeGame.handleTouchEnd();

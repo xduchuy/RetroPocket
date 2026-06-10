@@ -29,6 +29,7 @@
   padding: 0;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -39,7 +40,7 @@ body {
   font-size: 10px;
   line-height: 1.4;
   overflow-x: hidden;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -81,7 +82,7 @@ body {
 /* Arcade Cabinet Frame */
 .arcade-cabinet {
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-main);
@@ -588,8 +589,8 @@ body {
   flex-direction: column;
   align-items: center;
   margin-top: auto;
-  padding-bottom: 10px;
-  min-height: 120px;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+  min-height: 140px;
   justify-content: center;
 }
 
@@ -604,9 +605,9 @@ body {
 /* D-PAD Layout */
 .dpad-grid {
   display: grid;
-  grid-template-columns: repeat(3, 50px);
-  grid-template-rows: repeat(3, 50px);
-  gap: 4px;
+  grid-template-columns: repeat(3, 62px);
+  grid-template-rows: repeat(3, 62px);
+  gap: 5px;
   justify-content: center;
 }
 
@@ -653,14 +654,14 @@ body {
 }
 
 .move-btn {
-  width: 55px;
-  height: 55px;
+  width: 62px;
+  height: 62px;
 }
 
 .action-btn {
-  width: 65px;
-  height: 55px;
-  font-size: 8px;
+  width: 72px;
+  height: 62px;
+  font-size: 9px;
 }
 
 .primary-action {

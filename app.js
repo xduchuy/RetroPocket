@@ -553,22 +553,27 @@ function launchGame(gameKey) {
   DOM.ctrlDpad.classList.add('hidden');
   DOM.ctrlLeftRightAction.classList.add('hidden');
   DOM.ctrlJumpOnly.classList.add('hidden');
+  DOM.mobileController.classList.add('hidden');
 
   if (gameKey === 'snake') {
     DOM.ctrlDpad.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     DOM.instructionText.textContent = getTranslation('instruct_snake');
   } else if (gameKey === 'blocks') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnActionA').textContent = getTranslation('lbl_rotate');
     document.getElementById('btnActionB').textContent = getTranslation('lbl_drop');
     DOM.instructionText.textContent = getTranslation('instruct_blocks');
   } else if (gameKey === 'paddle') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnActionA').textContent = '---';
     document.getElementById('btnActionB').textContent = '---';
     DOM.instructionText.textContent = getTranslation('instruct_paddle');
   } else if (gameKey === 'defender') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnActionA').textContent = getTranslation('lbl_fire');
     document.getElementById('btnActionB').textContent = '---';
     DOM.instructionText.textContent = getTranslation('instruct_defender');
@@ -576,27 +581,33 @@ function launchGame(gameKey) {
     DOM.instructionText.textContent = getTranslation('instruct_memory');
   } else if (gameKey === 'runner') {
     DOM.ctrlJumpOnly.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnJumpAction').textContent = getTranslation('lbl_jump');
     DOM.instructionText.textContent = getTranslation('instruct_runner');
   } else if (gameKey === 'minesweeper') {
     DOM.instructionText.textContent = getTranslation('instruct_minesweeper');
   } else if (gameKey === 'flappy') {
     DOM.ctrlJumpOnly.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnJumpAction').textContent = getTranslation('lbl_flap');
     DOM.instructionText.textContent = getTranslation('instruct_flappy');
   } else if (gameKey === 'frog') {
     DOM.ctrlDpad.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     DOM.instructionText.textContent = getTranslation('instruct_frog');
   } else if (gameKey === 'racer') {
     DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnActionA').textContent = '---';
     document.getElementById('btnActionB').textContent = '---';
     DOM.instructionText.textContent = getTranslation('instruct_racer');
   } else if (gameKey === 'gobbler') {
     DOM.ctrlDpad.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     DOM.instructionText.textContent = getTranslation('instruct_gobbler');
   } else if (gameKey === 'stacker') {
     DOM.ctrlJumpOnly.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnJumpAction').textContent = getTranslation('lbl_stack');
     DOM.instructionText.textContent = getTranslation('instruct_stacker');
   }

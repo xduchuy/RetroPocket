@@ -1038,6 +1038,7 @@ body.playing-mode {
 .playing-mode .arcade-screen {
   background-color: transparent !important;
   box-shadow: none !important;
+  overflow: hidden !important;
 }
 
 /* 2. Console Body / Cabinet Frame */

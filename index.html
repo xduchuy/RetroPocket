@@ -36,6 +36,10 @@
           <span class="btn-text">🌐 EN</span>
         </button>
 
+        <button id="helpInfoBtn" class="retro-btn icon-btn" title="Help">
+          <span class="btn-text">❓ HELP</span>
+        </button>
+
         <button id="soundToggle" class="retro-btn icon-btn" title="Toggle Sound">
           <span class="btn-text">🔊 SOUND ON</span>
         </button>
@@ -205,6 +209,7 @@
             <div class="score-display high-score"><span id="hudHighScoreLabel">HI-SCORE:</span> <span id="activeHighScore">0</span></div>
           </div>
           <div class="hud-right">
+            <button id="helpGameBtn" class="retro-btn small-btn" title="How to Play" style="margin-right: 5px;"><span class="btn-text">❓</span></button>
             <button id="pauseGameBtn" class="retro-btn small-btn" title="Pause"><span class="btn-text">⏸ PAUSE</span></button>
           </div>
         </div>
@@ -334,6 +339,33 @@
         <div class="modal-footer vertical-footer">
           <button id="goRestartBtn" class="retro-btn w-full"><span class="btn-text">PLAY AGAIN</span></button>
           <button id="goQuitBtn" class="retro-btn w-full danger-btn"><span class="btn-text">BACK TO ARCADE</span></button>
+        </div>
+    <!-- MODAL 4: GENERAL HELP -->
+    <div id="helpModal" class="modal-overlay">
+      <div class="retro-modal">
+        <h2 id="helpTitle" class="modal-title neon-glow" data-text="HOW TO PLAY">❓ HOW TO PLAY ❓</h2>
+        <div class="modal-content" style="max-height: 280px; overflow-y: auto; text-align: left; font-size: 11px; line-height: 1.4; font-family: var(--font-mono); color: #a097c4;">
+          <p id="helpContent1" style="color: var(--cyan); margin-bottom: 8px; font-weight: bold;">DESKTOP CONTROLS:</p>
+          <ul style="margin-left: 15px; margin-bottom: 12px; list-style-type: square;">
+            <li id="helpItem1">Arrow Keys / WASD: Move / Rotate / Change Lanes</li>
+            <li id="helpItem2">Spacebar: Shoot / Jump / Flap / Stack</li>
+            <li id="helpItem3">Mouse: Tap on canvas for Memory Tiles & Minesweeper</li>
+          </ul>
+          <p id="helpContent2" style="color: var(--pink); margin-bottom: 8px; font-weight: bold;">MOBILE CONTROLS:</p>
+          <ul style="margin-left: 15px; margin-bottom: 12px; list-style-type: square;">
+            <li id="helpItem4">Virtual D-Pad & Action Buttons: Slide or tap to steer</li>
+            <li id="helpItem5">Canvas Touch: Tap to play Memory/Minesweeper</li>
+            <li id="helpItem6">Minesweeper flag: Press and hold (>350ms) to flag</li>
+          </ul>
+          <p id="helpContent3" style="color: var(--yellow); margin-bottom: 8px; font-weight: bold;">SETTINGS:</p>
+          <ul style="margin-left: 15px; list-style-type: square;">
+            <li id="helpItem7">🌐 Language: Toggle EN/VI</li>
+            <li id="helpItem8">🔊 Sound: Toggle synth SFX</li>
+            <li id="helpItem9">⚙️ Difficulty: Selected before entering each game</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button id="closeHelpBtn" class="retro-btn"><span class="btn-text">CLOSE</span></button>
         </div>
       </div>
     </div>

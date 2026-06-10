@@ -138,6 +138,10 @@ const DOM = {
   finalHighScore: document.getElementById('finalHighScore'),
   newHighScoreAlert: document.getElementById('newHighScoreAlert'),
   langToggle: document.getElementById('langToggle'),
+  helpInfoBtn: document.getElementById('helpInfoBtn'),
+  helpGameBtn: document.getElementById('helpGameBtn'),
+  helpModal: document.getElementById('helpModal'),
+  closeHelpBtn: document.getElementById('closeHelpBtn'),
   goRestartBtn: document.getElementById('goRestartBtn'),
   goQuitBtn: document.getElementById('goQuitBtn'),
 };
@@ -219,7 +223,21 @@ const TRANSLATIONS = {
     title_frog: 'PIXEL HOP',
     title_racer: 'PIXEL RACER',
     title_gobbler: 'PIXEL GOBBLER',
-    title_stacker: 'PIXEL STACKER'
+    title_stacker: 'PIXEL STACKER',
+    help_btn: '❓ HELP',
+    help_title: '❓ HOW TO PLAY ❓',
+    help_ctrl_desktop: 'DESKTOP CONTROLS:',
+    help_ctrl_desktop_1: 'Arrow Keys / WASD: Move / Rotate / Change Lanes',
+    help_ctrl_desktop_2: 'Spacebar: Shoot / Jump / Flap / Stack',
+    help_ctrl_desktop_3: 'Mouse: Tap on canvas for Memory Tiles & Minesweeper',
+    help_ctrl_mobile: 'MOBILE CONTROLS:',
+    help_ctrl_mobile_1: 'Virtual D-Pad & Action Buttons: Slide or tap to steer',
+    help_ctrl_mobile_2: 'Canvas Touch: Tap to play Memory/Minesweeper',
+    help_ctrl_mobile_3: 'Minesweeper flag: Press and hold (>350ms) to flag',
+    help_settings: 'SETTINGS:',
+    help_settings_1: '🌐 Language: Toggle EN/VI',
+    help_settings_2: '🔊 Sound: Toggle synth SFX',
+    help_settings_3: '⚙️ Difficulty: Selected before entering each game'
   },
   vi: {
     sound_on: 'BẬT ÂM',
@@ -292,7 +310,21 @@ const TRANSLATIONS = {
     title_frog: 'ẾCH BĂNG SÔNG',
     title_racer: 'ĐUA XE NEON',
     title_gobbler: 'ĂN CHẤM VÀNG',
-    title_stacker: 'XẾP THÁP'
+    title_stacker: 'XẾP THÁP',
+    help_btn: '❓ TRỢ GIÚP',
+    help_title: '❓ HƯỚNG DẪN CHƠI ❓',
+    help_ctrl_desktop: 'ĐIỀU KHIỂN TRÊN MÁY TÍNH:',
+    help_ctrl_desktop_1: 'Phím mũi tên / WASD: Di chuyển / Xoay / Chuyển làn',
+    help_ctrl_desktop_2: 'Phím Cách (Space): Bắn / Nhảy / Bay / Xếp tháp',
+    help_ctrl_desktop_3: 'Chuột: Nhấp trên màn hình cho Lật thẻ & Dò mìn',
+    help_ctrl_mobile: 'ĐIỀU KHIỂN TRÊN ĐIỆN THOẠI:',
+    help_ctrl_mobile_1: 'D-Pad ảo & Nút hành động: Vuốt hoặc chạm để lái',
+    help_ctrl_mobile_2: 'Cảm ứng: Chạm màn hình để chơi Lật thẻ / Dò mìn',
+    help_ctrl_mobile_3: 'Cắm cờ Dò mìn: Nhấn và giữ (>350ms)',
+    help_settings: 'CÀI ĐẶT:',
+    help_settings_1: '🌐 Ngôn ngữ: Nhấn để đổi Anh/Việt',
+    help_settings_2: '🔊 Âm thanh: Bật/Tắt hiệu ứng 8-bit',
+    help_settings_3: '⚙️ Độ khó: Chọn khi bắt đầu mỗi trò chơi'
   }
 };
 
@@ -345,6 +377,22 @@ function applyLanguage() {
   DOM.instructionsOverlay.querySelector('.instruct-title').textContent = getTranslation('get_ready');
   DOM.startGameBtn.querySelector('.btn-text').textContent = getTranslation('start');
   
+  DOM.helpInfoBtn.querySelector('.btn-text').textContent = getTranslation('help_btn');
+  updateModalTitle(DOM.helpModal, getTranslation('help_title'));
+  document.getElementById('helpContent1').textContent = getTranslation('help_ctrl_desktop');
+  document.getElementById('helpItem1').textContent = getTranslation('help_ctrl_desktop_1');
+  document.getElementById('helpItem2').textContent = getTranslation('help_ctrl_desktop_2');
+  document.getElementById('helpItem3').textContent = getTranslation('help_ctrl_desktop_3');
+  document.getElementById('helpContent2').textContent = getTranslation('help_ctrl_mobile');
+  document.getElementById('helpItem4').textContent = getTranslation('help_ctrl_mobile_1');
+  document.getElementById('helpItem5').textContent = getTranslation('help_ctrl_mobile_2');
+  document.getElementById('helpItem6').textContent = getTranslation('help_ctrl_mobile_3');
+  document.getElementById('helpContent3').textContent = getTranslation('help_settings');
+  document.getElementById('helpItem7').textContent = getTranslation('help_settings_1');
+  document.getElementById('helpItem8').textContent = getTranslation('help_settings_2');
+  document.getElementById('helpItem9').textContent = getTranslation('help_settings_3');
+  DOM.closeHelpBtn.querySelector('.btn-text').textContent = getTranslation('close');
+  
   if (activeGameKey) {
     DOM.instructionText.textContent = getTranslation(`instruct_${activeGameKey}`);
     DOM.activeGameTitle.textContent = getTranslation(`title_${activeGameKey}`);
@@ -361,6 +409,7 @@ let score = 0;
 let difficulty = 'normal';
 let rafId = null;
 let isPaused = false;
+let isHelpOverlay = false;
 
 // Key states tracking
 const keysPressed = {};
@@ -432,6 +481,16 @@ DOM.hofButton.addEventListener('click', () => {
 DOM.closeHofBtn.addEventListener('click', () => {
   sounds.playClick();
   DOM.hofModal.classList.remove('active');
+});
+
+DOM.helpInfoBtn.addEventListener('click', () => {
+  sounds.playClick();
+  DOM.helpModal.classList.add('active');
+});
+
+DOM.closeHelpBtn.addEventListener('click', () => {
+  sounds.playClick();
+  DOM.helpModal.classList.remove('active');
 });
 
 DOM.resetScoresBtn.addEventListener('click', () => {
@@ -555,7 +614,16 @@ function launchGame(gameKey) {
 DOM.startGameBtn.addEventListener('click', () => {
   sounds.playClick();
   DOM.instructionsOverlay.classList.add('hidden');
-  initActiveGame();
+  if (isHelpOverlay) {
+    isHelpOverlay = false;
+    appState = STATE.playing;
+    isPaused = false;
+    if (activeGame && activeGame.resume) activeGame.resume();
+    lastTime = performance.now();
+    startGameLoop();
+  } else {
+    initActiveGame();
+  }
 });
 
 // Setup game instance
@@ -627,6 +695,19 @@ DOM.exitGameBtn.addEventListener('click', () => {
 DOM.pauseGameBtn.addEventListener('click', () => {
   sounds.playClick();
   pauseGame();
+});
+
+DOM.helpGameBtn.addEventListener('click', () => {
+  if (appState !== STATE.playing || !activeGame) return;
+  sounds.playClick();
+  isPaused = true;
+  appState = STATE.paused;
+  if (activeGame && activeGame.pause) activeGame.pause();
+  
+  DOM.instructionsOverlay.classList.remove('hidden');
+  isHelpOverlay = true;
+  
+  DOM.startGameBtn.querySelector('.btn-text').textContent = getTranslation('continue');
 });
 
 function pauseGame() {

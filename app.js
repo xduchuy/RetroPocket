@@ -96,7 +96,7 @@ const STATE = {
   gameover: 'gameover'
 };
 
-const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker', 'catcher', 'jumper'];
+const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker', 'catcher', 'jumper', 'pong'];
 
 const DOM = {
   menuScreen: document.getElementById('menuScreen'),
@@ -202,6 +202,7 @@ const TRANSLATIONS = {
     desc_stacker: 'Align moving blocks carefully to build the tallest tower possible!',
     desc_catcher: 'Catch falling neon stars and gems while dodging dangerous bombs!',
     desc_jumper: 'Bounce up neon platforms, collect stars and springs, and climb as high as possible!',
+    desc_pong: 'Duel against CPU in a fast-paced horizontal neon ping-pong match!',
     
     instruct_snake: 'Navigate the grid. Eat green/gold apples. Do not crash!',
     instruct_blocks: 'Move blocks. Rotate to align rows and clear lines.',
@@ -217,6 +218,7 @@ const TRANSLATIONS = {
     instruct_stacker: 'Press STACK or Spacebar to place the moving row. Align them perfectly!',
     instruct_catcher: 'Move left/right to catch gems and stars. Avoid red bombs!',
     instruct_jumper: 'Move Left/Right to steer. Land on platforms to bounce. Do not fall!',
+    instruct_pong: 'Steer Left/Right to slide paddle. Deflect the ball to score points!',
     
     title_snake: 'SNAKE PIXEL',
     title_blocks: 'BLOCK DROP',
@@ -232,6 +234,7 @@ const TRANSLATIONS = {
     title_stacker: 'PIXEL STACKER',
     title_catcher: 'PIXEL CATCHER',
     title_jumper: 'NEON JUMPER',
+    title_pong: 'NEON PONG',
     help_btn: '❓ HELP',
     help_title: '❓ HOW TO PLAY ❓',
     help_ctrl_desktop: 'DESKTOP CONTROLS:',
@@ -295,6 +298,7 @@ const TRANSLATIONS = {
     desc_stacker: 'Xếp chồng các khối gạch di động thẳng hàng để xây tháp!',
     desc_catcher: 'Hứng sao và đá quý rơi từ trên cao, đồng thời né tránh bom đỏ!',
     desc_jumper: 'Nhảy lên các bực neon, thu thập sao và lò xo, leo cao nhất có thể!',
+    desc_pong: 'Đối đầu với CPU trong trận bóng bàn neon nằm ngang tốc độ kịch tính!',
     
     instruct_snake: 'Di chuyển trong lưới. Ăn táo xanh/vàng. Đừng đâm vào đuôi!',
     instruct_blocks: 'Di chuyển khối gạch. Xoay khối để xếp kín và xóa hàng.',
@@ -310,6 +314,7 @@ const TRANSLATIONS = {
     instruct_stacker: 'Nhấn XẾP hoặc phím Cách để đặt hàng gạch. Căn chỉnh thật chuẩn!',
     instruct_catcher: 'Di chuyển trái/phải để hứng đá quý và sao. Tránh bom đỏ!',
     instruct_jumper: 'Di chuyển Trái/Phải để điều khiển. Đáp lên bực để nhảy. Đừng để rơi!',
+    instruct_pong: 'Nhấn Trái/Phải để trượt vợt. Đánh trả bóng để ghi điểm!',
     
     title_snake: 'RẮN SĂN MỒI',
     title_blocks: 'XẾP GẠCH',
@@ -325,6 +330,7 @@ const TRANSLATIONS = {
     title_stacker: 'XẾP THÁP',
     title_catcher: 'HỨNG ĐÁ QUÝ',
     title_jumper: 'NHẢY NEON',
+    title_pong: 'BÓNG BÀN NEON',
     help_btn: '❓ TRỢ GIÚP',
     help_title: '❓ HƯỚNG DẪN CHƠI ❓',
     help_ctrl_desktop: 'ĐIỀU KHIỂN TRÊN MÁY TÍNH:',
@@ -634,7 +640,14 @@ function launchGame(gameKey) {
     document.getElementById('btnActionA').textContent = 'A';
     document.getElementById('btnActionB').textContent = 'B';
     DOM.instructionText.textContent = getTranslation('instruct_jumper');
+  } else if (gameKey === 'pong') {
+    DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
+    document.getElementById('btnActionA').textContent = 'A';
+    document.getElementById('btnActionB').textContent = 'B';
+    DOM.instructionText.textContent = getTranslation('instruct_pong');
   }
+
 
   
   // Sync difficulty button highlights with the current global difficulty
@@ -691,6 +704,8 @@ function initActiveGame() {
   else if (activeGameKey === 'stacker') activeGame = new PixelStackerGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'catcher') activeGame = new PixelCatcherGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'jumper') activeGame = new PixelJumperGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'pong') activeGame = new PixelPongGame(DOM.canvas, difficulty);
+
 
 
   activeGame.init();
@@ -4905,6 +4920,333 @@ class PixelJumperGame {
     this.platforms = [];
     this.particles = [];
     this.stars = [];
+  }
+}
+
+// ----------------------------------------------------
+// 15.7 GAME ENGINE 15: NEON PONG
+// ----------------------------------------------------
+class PixelPongGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.diff = diff;
+    
+    this.paddleW = 55;
+    this.paddleH = 8;
+    
+    this.playerX = 172.5;
+    this.playerY = 375;
+    this.playerSpeed = 6.5;
+    
+    this.cpuX = 172.5;
+    this.cpuY = 17;
+    this.cpuSpeed = 3.5;
+    
+    this.ball = {
+      x: 200,
+      y: 200,
+      w: 8,
+      h: 8,
+      vx: 0,
+      vy: 0,
+      speed: 180
+    };
+    
+    this.playerScore = 0;
+    this.cpuScore = 0;
+    
+    this.particles = [];
+    this.shakeTimer = 0;
+    this.flashColor = null;
+    this.flashTimer = 0;
+    this.timeElapsed = 0;
+    
+    if (diff === 'easy') {
+      this.cpuSpeed = 2.4;
+      this.ballStartSpeed = 150;
+      this.speedIncrement = 1.05;
+    } else if (diff === 'normal') {
+      this.cpuSpeed = 3.8;
+      this.ballStartSpeed = 200;
+      this.speedIncrement = 1.08;
+    } else {
+      this.cpuSpeed = 5.5;
+      this.ballStartSpeed = 260;
+      this.speedIncrement = 1.11;
+    }
+  }
+
+  init() {
+    this.playerX = 200 - this.paddleW / 2;
+    this.cpuX = 200 - this.paddleW / 2;
+    
+    this.playerScore = 0;
+    this.cpuScore = 0;
+    
+    this.particles = [];
+    this.shakeTimer = 0;
+    this.flashTimer = 0;
+    this.timeElapsed = 0;
+    
+    if (this.diff === 'easy') {
+      this.cpuSpeed = 2.4;
+      this.ballStartSpeed = 150;
+      this.speedIncrement = 1.05;
+    } else if (this.diff === 'normal') {
+      this.cpuSpeed = 3.8;
+      this.ballStartSpeed = 200;
+      this.speedIncrement = 1.08;
+    } else {
+      this.cpuSpeed = 5.5;
+      this.ballStartSpeed = 260;
+      this.speedIncrement = 1.11;
+    }
+
+    this.resetBall(1);
+  }
+
+  resetBall(serveDir) {
+    this.ball.x = 200 - this.ball.w / 2;
+    this.ball.y = 200 - this.ball.h / 2;
+    this.ball.speed = this.ballStartSpeed;
+    
+    const angle = (serveDir > 0) ? 
+                  (Math.PI / 4 + Math.random() * Math.PI / 2) : 
+                  (-Math.PI / 4 - Math.random() * Math.PI / 2);
+                  
+    this.ball.vx = Math.cos(angle) * this.ball.speed;
+    this.ball.vy = Math.sin(angle) * this.ball.speed;
+  }
+
+  handleInput(key, type) {}
+
+  createParticles(x, y, color, count = 8) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 30 + Math.random() * 60;
+      this.particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: color,
+        size: 1.5 + Math.random() * 2,
+        life: 300 + Math.random() * 300,
+        maxLife: 600
+      });
+    }
+  }
+
+  update(dt) {
+    const dtSeconds = dt / 1000;
+    this.timeElapsed += dt;
+
+    if (this.shakeTimer > 0) {
+      this.shakeTimer = Math.max(0, this.shakeTimer - dt);
+    }
+    if (this.flashTimer > 0) {
+      this.flashTimer = Math.max(0, this.flashTimer - dt);
+    }
+
+    if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['A']) {
+      this.playerX = Math.max(8, this.playerX - this.playerSpeed);
+    }
+    if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['D']) {
+      this.playerX = Math.min(this.canvas.width - this.paddleW - 8, this.playerX + this.playerSpeed);
+    }
+
+    const targetCpuX = this.ball.x + this.ball.w / 2 - this.paddleW / 2;
+    const diffX = targetCpuX - this.cpuX;
+    
+    let activeCPU = true;
+    if (this.diff === 'easy' && this.ball.vy > 0 && this.ball.y > 150) {
+      activeCPU = false;
+    }
+    
+    if (activeCPU) {
+      this.cpuX += Math.sign(diffX) * Math.min(Math.abs(diffX), this.cpuSpeed);
+      this.cpuX = Math.max(8, Math.min(this.canvas.width - this.paddleW - 8, this.cpuX));
+    }
+
+    this.ball.x += this.ball.vx * dtSeconds;
+    this.ball.y += this.ball.vy * dtSeconds;
+
+    if (this.ball.x < 8) {
+      this.ball.x = 8;
+      this.ball.vx = -this.ball.vx;
+      sounds.playTone(200, 'triangle', 0.05);
+      this.createParticles(8, this.ball.y + this.ball.h / 2, varColor('--cyan'), 4);
+    } else if (this.ball.x + this.ball.w > this.canvas.width - 8) {
+      this.ball.x = this.canvas.width - 8 - this.ball.w;
+      this.ball.vx = -this.ball.vx;
+      sounds.playTone(200, 'triangle', 0.05);
+      this.createParticles(this.canvas.width - 8, this.ball.y + this.ball.h / 2, varColor('--cyan'), 4);
+    }
+
+    if (this.ball.vy > 0 && 
+        this.ball.y + this.ball.h >= this.playerY && 
+        this.ball.y <= this.playerY + this.paddleH &&
+        this.ball.x + this.ball.w >= this.playerX && 
+        this.ball.x <= this.playerX + this.paddleW) {
+      
+      this.ball.y = this.playerY - this.ball.h;
+      
+      const relativeX = (this.ball.x + this.ball.w / 2) - (this.playerX + this.paddleW / 2);
+      const normalizedHit = relativeX / (this.paddleW / 2);
+      const bounceAngle = -Math.PI / 2 + normalizedHit * (Math.PI / 3.5);
+      
+      this.ball.speed = Math.min(450, this.ball.speed * this.speedIncrement);
+      this.ball.vx = Math.cos(bounceAngle) * this.ball.speed;
+      this.ball.vy = Math.sin(bounceAngle) * this.ball.speed;
+      
+      score += 10;
+      sounds.playTone(480, 'triangle', 0.08);
+      this.createParticles(this.ball.x + this.ball.w/2, this.playerY, varColor('--green'), 8);
+      this.shakeTimer = 100;
+    }
+
+    if (this.ball.vy < 0 && 
+        this.ball.y <= this.cpuY + this.paddleH && 
+        this.ball.y + this.ball.h >= this.cpuY &&
+        this.ball.x + this.ball.w >= this.cpuX && 
+        this.ball.x <= this.cpuX + this.paddleW) {
+      
+      this.ball.y = this.cpuY + this.paddleH;
+      
+      const relativeX = (this.ball.x + this.ball.w / 2) - (this.cpuX + this.paddleW / 2);
+      const normalizedHit = relativeX / (this.paddleW / 2);
+      const bounceAngle = Math.PI / 2 + normalizedHit * (Math.PI / 3.5);
+      
+      this.ball.speed = Math.min(450, this.ball.speed * this.speedIncrement);
+      this.ball.vx = Math.cos(bounceAngle) * this.ball.speed;
+      this.ball.vy = Math.sin(bounceAngle) * this.ball.speed;
+      
+      sounds.playTone(440, 'triangle', 0.08);
+      this.createParticles(this.ball.x + this.ball.w/2, this.cpuY + this.paddleH, varColor('--pink'), 8);
+      this.shakeTimer = 100;
+    }
+
+    if (this.ball.y < 0) {
+      this.playerScore++;
+      score += 100;
+      sounds.playScore();
+      this.flashColor = 'rgba(57, 255, 20, 0.2)';
+      this.flashTimer = 250;
+      
+      if (this.playerScore >= 5) {
+        score += 500;
+        sounds.playWin();
+        triggerGameOver();
+      } else {
+        this.resetBall(1);
+      }
+    } else if (this.ball.y > this.canvas.height) {
+      this.cpuScore++;
+      sounds.playHit();
+      this.flashColor = 'rgba(255, 0, 127, 0.2)';
+      this.flashTimer = 250;
+      
+      if (this.cpuScore >= 5) {
+        triggerGameOver();
+      } else {
+        this.resetBall(-1);
+      }
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtSeconds;
+      p.y += p.vy * dtSeconds;
+      p.life -= dt;
+      if (p.life <= 0) {
+        this.particles.splice(i, 1);
+      }
+    }
+  }
+
+  draw(ctx) {
+    ctx.save();
+
+    if (this.shakeTimer > 0) {
+      const shakeAmt = 3;
+      const dx = (Math.random() - 0.5) * shakeAmt;
+      const dy = (Math.random() - 0.5) * shakeAmt;
+      ctx.translate(dx, dy);
+    }
+
+    ctx.fillStyle = '#060411';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.strokeStyle = '#1b1236';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 12]);
+    ctx.beginPath();
+    ctx.moveTo(8, 200);
+    ctx.lineTo(this.canvas.width - 8, 200);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.strokeStyle = '#1d173d';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(8, 0);
+    ctx.lineTo(8, this.canvas.height);
+    ctx.moveTo(this.canvas.width - 8, 0);
+    ctx.lineTo(this.canvas.width - 8, this.canvas.height);
+    ctx.stroke();
+
+    ctx.font = 'bold 36px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.fillText(this.cpuScore, 200, 150);
+    ctx.fillText(this.playerScore, 200, 280);
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText('CPU', 200, 110);
+    ctx.fillText('PLAYER', 200, 310);
+
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#ffd700';
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(this.ball.x, this.ball.y, this.ball.w, this.ball.h);
+    ctx.restore();
+
+    ctx.save();
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#39ff14';
+    ctx.fillStyle = '#39ff14';
+    ctx.beginPath();
+    ctx.roundRect(this.playerX, this.playerY, this.paddleW, this.paddleH, 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#ff007f';
+    ctx.fillStyle = '#ff007f';
+    ctx.beginPath();
+    ctx.roundRect(this.cpuX, this.cpuY, this.paddleW, this.paddleH, 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    this.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    });
+    ctx.restore();
+
+    if (this.flashTimer > 0 && this.flashColor) {
+      ctx.fillStyle = this.flashColor;
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    ctx.restore();
+  }
+
+  cleanup() {
+    this.particles = [];
   }
 }
 

@@ -96,7 +96,7 @@ const STATE = {
   gameover: 'gameover'
 };
 
-const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker', 'catcher'];
+const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker', 'catcher', 'jumper'];
 
 const DOM = {
   menuScreen: document.getElementById('menuScreen'),
@@ -201,6 +201,7 @@ const TRANSLATIONS = {
     desc_gobbler: 'Munch all neon dots in the maze and escape the chasing red ghost!',
     desc_stacker: 'Align moving blocks carefully to build the tallest tower possible!',
     desc_catcher: 'Catch falling neon stars and gems while dodging dangerous bombs!',
+    desc_jumper: 'Bounce up neon platforms, collect stars and springs, and climb as high as possible!',
     
     instruct_snake: 'Navigate the grid. Eat green/gold apples. Do not crash!',
     instruct_blocks: 'Move blocks. Rotate to align rows and clear lines.',
@@ -215,6 +216,7 @@ const TRANSLATIONS = {
     instruct_gobbler: 'Eat all neon dots. Avoid the red chasing ghost!',
     instruct_stacker: 'Press STACK or Spacebar to place the moving row. Align them perfectly!',
     instruct_catcher: 'Move left/right to catch gems and stars. Avoid red bombs!',
+    instruct_jumper: 'Move Left/Right to steer. Land on platforms to bounce. Do not fall!',
     
     title_snake: 'SNAKE PIXEL',
     title_blocks: 'BLOCK DROP',
@@ -229,6 +231,7 @@ const TRANSLATIONS = {
     title_gobbler: 'PIXEL GOBBLER',
     title_stacker: 'PIXEL STACKER',
     title_catcher: 'PIXEL CATCHER',
+    title_jumper: 'NEON JUMPER',
     help_btn: '❓ HELP',
     help_title: '❓ HOW TO PLAY ❓',
     help_ctrl_desktop: 'DESKTOP CONTROLS:',
@@ -291,6 +294,7 @@ const TRANSLATIONS = {
     desc_gobbler: 'Ăn hết chấm vàng trong mê cung và chạy trốn bóng ma!',
     desc_stacker: 'Xếp chồng các khối gạch di động thẳng hàng để xây tháp!',
     desc_catcher: 'Hứng sao và đá quý rơi từ trên cao, đồng thời né tránh bom đỏ!',
+    desc_jumper: 'Nhảy lên các bực neon, thu thập sao và lò xo, leo cao nhất có thể!',
     
     instruct_snake: 'Di chuyển trong lưới. Ăn táo xanh/vàng. Đừng đâm vào đuôi!',
     instruct_blocks: 'Di chuyển khối gạch. Xoay khối để xếp kín và xóa hàng.',
@@ -305,6 +309,7 @@ const TRANSLATIONS = {
     instruct_gobbler: 'Ăn tất cả các chấm neon. Né tránh con ma đỏ đuổi theo!',
     instruct_stacker: 'Nhấn XẾP hoặc phím Cách để đặt hàng gạch. Căn chỉnh thật chuẩn!',
     instruct_catcher: 'Di chuyển trái/phải để hứng đá quý và sao. Tránh bom đỏ!',
+    instruct_jumper: 'Di chuyển Trái/Phải để điều khiển. Đáp lên bực để nhảy. Đừng để rơi!',
     
     title_snake: 'RẮN SĂN MỒI',
     title_blocks: 'XẾP GẠCH',
@@ -319,6 +324,7 @@ const TRANSLATIONS = {
     title_gobbler: 'ĂN CHẤM VÀNG',
     title_stacker: 'XẾP THÁP',
     title_catcher: 'HỨNG ĐÁ QUÝ',
+    title_jumper: 'NHẢY NEON',
     help_btn: '❓ TRỢ GIÚP',
     help_title: '❓ HƯỚNG DẪN CHƠI ❓',
     help_ctrl_desktop: 'ĐIỀU KHIỂN TRÊN MÁY TÍNH:',
@@ -622,7 +628,14 @@ function launchGame(gameKey) {
     document.getElementById('btnActionA').textContent = 'A';
     document.getElementById('btnActionB').textContent = 'B';
     DOM.instructionText.textContent = getTranslation('instruct_catcher');
+  } else if (gameKey === 'jumper') {
+    DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
+    document.getElementById('btnActionA').textContent = 'A';
+    document.getElementById('btnActionB').textContent = 'B';
+    DOM.instructionText.textContent = getTranslation('instruct_jumper');
   }
+
   
   // Sync difficulty button highlights with the current global difficulty
   document.querySelectorAll('.diff-btn').forEach(btn => {
@@ -677,6 +690,8 @@ function initActiveGame() {
   else if (activeGameKey === 'gobbler') activeGame = new PixelGobblerGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'stacker') activeGame = new PixelStackerGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'catcher') activeGame = new PixelCatcherGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'jumper') activeGame = new PixelJumperGame(DOM.canvas, difficulty);
+
 
   activeGame.init();
   startGameLoop();
@@ -4355,6 +4370,539 @@ class PixelCatcherGame {
 
   cleanup() {
     this.items = [];
+    this.particles = [];
+    this.stars = [];
+  }
+}
+
+// ----------------------------------------------------
+// 15.6 GAME ENGINE 14: NEON JUMPER
+// ----------------------------------------------------
+class PixelJumperGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.diff = diff;
+    
+    this.player = {
+      x: 180,
+      y: 320,
+      w: 20,
+      h: 20,
+      vx: 0,
+      vy: 0,
+      speed: 300,
+      accel: 0.18,
+      drag: 0.82
+    };
+    
+    this.gravity = 420;
+    this.bounceVel = -280;
+    this.springVel = -540;
+    
+    this.cameraY = 0;
+    this.highestY = 320;
+    this.highestPlatformY = 380;
+    
+    this.platforms = [];
+    this.particles = [];
+    this.stars = [];
+    
+    this.jetpackTimer = 0;
+    this.flashTimer = 0;
+    this.timeElapsed = 0;
+    this.starBonusScore = 0;
+    
+    if (diff === 'easy') {
+      this.baseSpacing = 50;
+      this.maxSpacing = 90;
+    } else if (diff === 'normal') {
+      this.baseSpacing = 70;
+      this.maxSpacing = 115;
+    } else {
+      this.baseSpacing = 95;
+      this.maxSpacing = 145;
+    }
+  }
+
+  init() {
+    this.player.x = 200 - this.player.w / 2;
+    this.player.y = 300;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    
+    this.cameraY = 100;
+    this.highestY = 300;
+    this.highestPlatformY = 380;
+    
+    this.platforms = [];
+    this.particles = [];
+    this.jetpackTimer = 0;
+    this.flashTimer = 0;
+    this.timeElapsed = 0;
+    this.starBonusScore = 0;
+    
+    if (this.diff === 'easy') {
+      this.baseSpacing = 50;
+      this.maxSpacing = 90;
+    } else if (this.diff === 'normal') {
+      this.baseSpacing = 70;
+      this.maxSpacing = 115;
+    } else {
+      this.baseSpacing = 95;
+      this.maxSpacing = 145;
+    }
+
+    this.platforms.push({
+      x: 80,
+      y: 370,
+      w: 240,
+      h: 8,
+      type: 'normal',
+      item: null
+    });
+    
+    while (this.highestPlatformY > -200) {
+      this.generatePlatform();
+    }
+
+    this.stars = [];
+    for (let i = 0; i < 30; i++) {
+      this.stars.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        size: 0.8 + Math.random() * 1.5,
+        speed: 10 + Math.random() * 20
+      });
+    }
+  }
+
+  handleInput(key, type) {}
+
+  generatePlatform() {
+    const scale = Math.min(1.6, 1 + Math.abs(this.highestPlatformY) / 10000);
+    const spacing = Math.min(this.maxSpacing, this.baseSpacing * scale) + Math.random() * 30;
+    const nextY = this.highestPlatformY - spacing;
+    this.highestPlatformY = nextY;
+
+    const pw = 45;
+    const px = 10 + Math.random() * (this.canvas.width - pw - 20);
+    const ph = 8;
+    
+    let type = 'normal';
+    const r = Math.random();
+    
+    let movingWeight = 0.20;
+    let brokenWeight = 0.15;
+    if (this.diff === 'normal') { movingWeight = 0.25; brokenWeight = 0.20; }
+    if (this.diff === 'hard') { movingWeight = 0.30; brokenWeight = 0.30; }
+
+    if (r < movingWeight) {
+      type = 'moving';
+    } else if (r < movingWeight + brokenWeight) {
+      type = 'broken';
+    }
+
+    let item = null;
+    if (type === 'normal') {
+      const ir = Math.random();
+      if (ir < 0.06) {
+        type = 'spring';
+      } else if (ir < 0.15) {
+        item = { type: 'star', collected: false, offset: pw / 2 };
+      } else if (ir < 0.17) {
+        item = { type: 'jetpack', collected: false, offset: pw / 2 };
+      }
+    } else if (type === 'moving') {
+      const ir = Math.random();
+      if (ir < 0.15) {
+        item = { type: 'star', collected: false, offset: pw / 2 };
+      }
+    }
+
+    this.platforms.push({
+      x: px,
+      y: nextY,
+      w: pw,
+      h: ph,
+      type: type,
+      speed: 40 + Math.random() * 60,
+      dir: Math.random() > 0.5 ? 1 : -1,
+      item: item
+    });
+  }
+
+  createParticles(x, y, color, count = 8, scale = 1) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = (20 + Math.random() * 50) * scale;
+      this.particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: color,
+        size: 1.5 + Math.random() * 2.5,
+        life: 300 + Math.random() * 300,
+        maxLife: 600
+      });
+    }
+  }
+
+  update(dt) {
+    const dtSeconds = dt / 1000;
+    this.timeElapsed += dt;
+
+    if (this.jetpackTimer > 0) {
+      this.jetpackTimer = Math.max(0, this.jetpackTimer - dt);
+      this.player.vy = -450;
+      
+      if (Math.random() < 0.45) {
+        this.particles.push({
+          x: this.player.x + this.player.w / 2 - 2 + (Math.random() - 0.5) * 6,
+          y: this.player.y + this.player.h,
+          vx: (Math.random() - 0.5) * 40,
+          vy: 200 + Math.random() * 100,
+          color: Math.random() > 0.5 ? '#ff007f' : '#ffd700',
+          size: 2 + Math.random() * 3,
+          life: 200 + Math.random() * 200,
+          maxLife: 400
+        });
+      }
+    } else {
+      this.player.vy += this.gravity * dtSeconds;
+    }
+
+    let targetVx = 0;
+    if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['A']) {
+      targetVx = -this.player.speed;
+    } else if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['D']) {
+      targetVx = this.player.speed;
+    }
+    this.player.vx += (targetVx - this.player.vx) * this.player.accel;
+    
+    this.player.x += this.player.vx * dtSeconds;
+    this.player.y += this.player.vy * dtSeconds;
+
+    if (this.player.x < -this.player.w) {
+      this.player.x = this.canvas.width;
+    } else if (this.player.x > this.canvas.width) {
+      this.player.x = -this.player.w;
+    }
+
+    this.stars.forEach(s => {
+      s.y += (s.speed + (this.player.vy < 0 ? -this.player.vy * 0.15 : 0)) * dtSeconds;
+      if (s.y > this.canvas.height) {
+        s.y = 0;
+        s.x = Math.random() * this.canvas.width;
+      }
+    });
+
+    if (this.player.vy > 0 && this.jetpackTimer <= 0) {
+      const px = this.player.x;
+      const py = this.player.y;
+      const pw = this.player.w;
+      const ph = this.player.h;
+
+      for (let i = 0; i < this.platforms.length; i++) {
+        const plat = this.platforms[i];
+        
+        const collides = (
+          px + pw - 4 >= plat.x && 
+          px + 4 <= plat.x + plat.w && 
+          py + ph >= plat.y && 
+          py + ph <= plat.y + 12
+        );
+        
+        if (collides) {
+          if (plat.type === 'broken') {
+            sounds.playHit();
+            this.createParticles(plat.x + plat.w/2, plat.y + plat.h/2, '#ff3333', 12, 1.2);
+            this.platforms.splice(i, 1);
+            i--;
+          } else if (plat.type === 'spring') {
+            this.player.vy = this.springVel;
+            sounds.playTone(450, 'square', 0.1, 800);
+            this.createParticles(plat.x + plat.w/2, plat.y, varColor('--pink'), 10, 1.3);
+          } else {
+            this.player.vy = this.bounceVel;
+            sounds.playTone(320, 'triangle', 0.06);
+            this.createParticles(plat.x + plat.w/2, plat.y, varColor('--cyan'), 6, 0.7);
+          }
+          break;
+        }
+      }
+    }
+
+    this.platforms.forEach(plat => {
+      if (plat.item && !plat.item.collected) {
+        const itemX = plat.x + plat.item.offset;
+        const itemY = plat.y - 12;
+        const itemSize = 12;
+        
+        const px = this.player.x;
+        const py = this.player.y;
+        const pw = this.player.w;
+        const ph = this.player.h;
+
+        const collides = (
+          px + pw >= itemX - itemSize/2 &&
+          px <= itemX + itemSize/2 &&
+          py + ph >= itemY - itemSize/2 &&
+          py <= itemY + itemSize/2
+        );
+
+        if (collides) {
+          plat.item.collected = true;
+          if (plat.item.type === 'star') {
+            this.starBonusScore += 50;
+            sounds.playScore();
+            this.createParticles(itemX, itemY, varColor('--yellow'), 10);
+          } else if (plat.item.type === 'jetpack') {
+            this.jetpackTimer = 2200;
+            sounds.playWin();
+            this.createParticles(itemX, itemY, varColor('--pink'), 14, 1.5);
+          }
+        }
+      }
+    });
+
+    this.platforms.forEach(plat => {
+      if (plat.type === 'moving') {
+        plat.x += plat.speed * plat.dir * dtSeconds;
+        if (plat.x < 10) {
+          plat.x = 10;
+          plat.dir = 1;
+        } else if (plat.x + plat.w > this.canvas.width - 10) {
+          plat.x = this.canvas.width - plat.w - 10;
+          plat.dir = -1;
+        }
+      }
+    });
+
+    if (this.player.y < this.highestY) {
+      this.highestY = this.player.y;
+    }
+
+    const altitude = Math.floor(Math.abs(this.highestY - 300) / 8);
+    score = Math.max(score, altitude + this.starBonusScore);
+
+    const targetCamY = this.player.y - 180;
+    if (targetCamY < this.cameraY) {
+      this.cameraY += (targetCamY - this.cameraY) * 0.15;
+    }
+
+    this.platforms = this.platforms.filter(plat => plat.y < this.cameraY + 450);
+    while (this.highestPlatformY > this.cameraY - 200) {
+      this.generatePlatform();
+    }
+
+    if (this.player.y > this.cameraY + 410) {
+      triggerGameOver();
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtSeconds;
+      p.y += p.vy * dtSeconds;
+      p.life -= dt;
+      if (p.life <= 0) {
+        this.particles.splice(i, 1);
+      }
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#060412';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.stars.forEach(s => {
+      ctx.fillStyle = '#3e346b';
+      ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+
+    this.platforms.forEach(plat => {
+      ctx.save();
+      const vy = plat.y - this.cameraY;
+      
+      if (plat.type === 'broken') {
+        ctx.strokeStyle = '#ff3333';
+        ctx.lineWidth = 3;
+        ctx.fillStyle = '#420d0d';
+        ctx.beginPath();
+        ctx.roundRect(plat.x, vy, plat.w / 2 - 3, plat.h, 2);
+        ctx.roundRect(plat.x + plat.w / 2 + 3, vy, plat.w / 2 - 3, plat.h, 2);
+        ctx.fill();
+        ctx.stroke();
+      } else if (plat.type === 'spring') {
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 3;
+        ctx.fillStyle = '#0a2e33';
+        ctx.beginPath();
+        ctx.roundRect(plat.x, vy, plat.w, plat.h, 3);
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.strokeStyle = '#ff007f';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const sx = plat.x + plat.w / 2;
+        ctx.moveTo(sx - 7, vy);
+        ctx.lineTo(sx + 7, vy - 2);
+        ctx.lineTo(sx - 5, vy - 4);
+        ctx.lineTo(sx + 5, vy - 6);
+        ctx.lineTo(sx - 7, vy - 8);
+        ctx.lineTo(sx + 7, vy - 8);
+        ctx.stroke();
+      } else if (plat.type === 'moving') {
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 3;
+        ctx.fillStyle = '#423b08';
+        ctx.beginPath();
+        ctx.roundRect(plat.x, vy, plat.w, plat.h, 3);
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(plat.x + 5, vy + 4);
+        ctx.lineTo(plat.x + 10, vy + 4);
+        ctx.moveTo(plat.x + plat.w - 10, vy + 4);
+        ctx.lineTo(plat.x + plat.w - 5, vy + 4);
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = '#39ff14';
+        ctx.lineWidth = 3;
+        ctx.fillStyle = '#0c3808';
+        ctx.beginPath();
+        ctx.roundRect(plat.x, vy, plat.w, plat.h, 3);
+        ctx.fill();
+        ctx.stroke();
+      }
+      
+      if (plat.item && !plat.item.collected) {
+        const ix = plat.x + plat.item.offset;
+        const iy = plat.y - 12 - this.cameraY;
+        
+        if (plat.item.type === 'star') {
+          ctx.save();
+          ctx.translate(ix, iy);
+          ctx.rotate(this.timeElapsed * 0.0035);
+          ctx.fillStyle = '#ffd700';
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for (let i = 0; i < 4; i++) {
+            ctx.lineTo(0, -6);
+            ctx.rotate(Math.PI / 4);
+            ctx.lineTo(0, -3);
+            ctx.rotate(Math.PI / 4);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        } else if (plat.item.type === 'jetpack') {
+          ctx.save();
+          ctx.translate(ix - 5, iy - 6);
+          ctx.fillStyle = '#ff007f';
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.roundRect(0, 0, 10, 12, 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.strokeStyle = '#cccccc';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(2, 0); ctx.lineTo(2, 12);
+          ctx.moveTo(8, 0); ctx.lineTo(8, 12);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+      
+      ctx.restore();
+    });
+
+    const px = this.player.x;
+    const py = this.player.y - this.cameraY;
+    const pw = this.player.w;
+    const ph = this.player.h;
+
+    ctx.save();
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#39ff14';
+    ctx.fillStyle = '#39ff14';
+    ctx.beginPath();
+    ctx.roundRect(px, py, pw, ph, 4);
+    ctx.fill();
+
+    ctx.fillStyle = '#000000';
+    if (this.player.vy < -120) {
+      ctx.fillRect(px + 4, py + 4, 3, 5);
+      ctx.fillRect(px + pw - 7, py + 4, 3, 5);
+    } else if (this.player.vy > 120) {
+      ctx.fillRect(px + 4, py + 6, 3, 3);
+      ctx.fillRect(px + pw - 7, py + 6, 3, 3);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(px + pw/2 - 2, py + 12, 4, 3);
+    } else {
+      ctx.fillRect(px + 4, py + 5, 3, 3);
+      ctx.fillRect(px + pw - 7, py + 5, 3, 3);
+      ctx.fillRect(px + pw/2 - 2, py + 11, 4, 2);
+    }
+
+    if (this.jetpackTimer > 0) {
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#ff007f';
+      ctx.fillStyle = '#ff007f';
+      ctx.beginPath();
+      if (this.player.vx >= 0) {
+        ctx.roundRect(px - 5, py + 3, 6, 14, 2);
+      } else {
+        ctx.roundRect(px + pw - 1, py + 3, 6, 14, 2);
+      }
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.save();
+    this.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    });
+    ctx.restore();
+
+    if (this.jetpackTimer > 0) {
+      ctx.save();
+      ctx.fillStyle = '#ff007f';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`JETPACK: ${(this.jetpackTimer / 1000).toFixed(1)}s`, this.canvas.width - 15, 20);
+      
+      const barW = 60;
+      const barH = 4;
+      const barX = this.canvas.width - 15 - barW;
+      const barY = 24;
+      
+      ctx.fillStyle = '#1e1c3a';
+      ctx.fillRect(barX, barY, barW, barH);
+      ctx.fillStyle = '#ff007f';
+      ctx.fillRect(barX, barY, barW * (this.jetpackTimer / 2200), barH);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(barX, barY, barW, barH);
+      ctx.restore();
+    }
+  }
+
+  cleanup() {
+    this.platforms = [];
     this.particles = [];
     this.stars = [];
   }

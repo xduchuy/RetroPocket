@@ -3645,30 +3645,47 @@ class PixelGobblerGame {
   constructor(canvas, diff) {
     this.canvas = canvas;
     this.diff = diff;
-    this.tileSize = 40;
-    this.gridSize = 10;
-    this.maze = [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
-      [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-      [1, 0, 0, 0, 1, 1, 0, 0, 0, 1],
-      [1, 0, 0, 0, 1, 1, 0, 0, 0, 1],
-      [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-      [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    this.tileSize = 20;
+    this.gridSize = 20;
+    
+    const halfMaze = [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 0
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Row 1
+      [1, 0, 1, 1, 0, 1, 1, 1, 0, 1], // Row 2
+      [1, 0, 1, 1, 0, 1, 1, 1, 0, 1], // Row 3
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Row 4
+      [1, 0, 1, 1, 0, 1, 0, 1, 1, 1], // Row 5
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 1], // Row 6
+      [1, 1, 1, 1, 0, 1, 1, 1, 0, 1], // Row 7
+      [1, 1, 1, 1, 0, 1, 0, 0, 0, 0], // Row 8
+      [0, 0, 0, 0, 0, 0, 0, 1, 1, 0], // Row 9 (Warp Tunnel Left and Top of Ghost House)
+      [1, 1, 1, 1, 0, 1, 0, 1, 0, 0], // Row 10 (Ghost House Interior)
+      [1, 1, 1, 1, 0, 1, 0, 1, 1, 1], // Row 11 (Bottom of Ghost House)
+      [1, 1, 1, 1, 0, 1, 0, 0, 0, 0], // Row 12
+      [1, 0, 0, 0, 0, 0, 0, 1, 1, 0], // Row 13
+      [1, 0, 1, 1, 0, 1, 1, 1, 1, 0], // Row 14
+      [1, 0, 0, 1, 0, 0, 0, 0, 0, 0], // Row 15
+      [1, 1, 0, 1, 0, 1, 0, 1, 1, 1], // Row 16
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 1], // Row 17
+      [1, 0, 1, 1, 1, 1, 1, 1, 0, 1], // Row 18
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  // Row 19
     ];
     
-    this.player = { x: 1, y: 1 };
-    this.ghost = { x: 8, y: 8 };
+    this.maze = halfMaze.map(row => {
+      return row.concat([...row].reverse());
+    });
+    
+    this.player = { x: 9, y: 15 };
+    this.ghost = { x: 9, y: 10 };
     this.dots = [];
     
     this.playerDir = { x: 0, y: 0 };
     this.nextDir = { x: 0, y: 0 };
+    this.facingDir = { x: 1, y: 0 }; // Track facing direction for mouth drawing
     
     this.playerTimer = 0;
     this.ghostTimer = 0;
+    this.frightenedTimer = 0; // Scared ghost timer (ms)
     this.level = 1;
     
     if (diff === 'easy') {
@@ -3689,20 +3706,29 @@ class PixelGobblerGame {
   }
 
   resetLevel() {
-    this.player.x = 1;
-    this.player.y = 1;
-    this.ghost.x = 8;
-    this.ghost.y = 8;
+    this.player.x = 9;
+    this.player.y = 15;
+    this.ghost.x = 9;
+    this.ghost.y = 10;
     this.playerDir = { x: 0, y: 0 };
     this.nextDir = { x: 0, y: 0 };
+    this.facingDir = { x: 1, y: 0 };
     this.playerTimer = 0;
     this.ghostTimer = 0;
+    this.frightenedTimer = 0;
 
     this.dots = [];
     for (let r = 0; r < this.gridSize; r++) {
       for (let c = 0; c < this.gridSize; c++) {
         if (this.maze[r][c] === 0) {
-          this.dots.push({ x: c, y: r, active: true });
+          // Do not spawn dots inside the ghost spawn house or the warp tunnels
+          const isGhostHouse = (r === 10 && c >= 8 && c <= 11);
+          const isWarpTunnel = (r === 9 && (c <= 4 || c >= 15));
+          if (!isGhostHouse && !isWarpTunnel) {
+            // Power pellets in the 4 corners
+            const isPowerPellet = (r === 1 && (c === 1 || c === 18)) || (r === 17 && (c === 1 || c === 18));
+            this.dots.push({ x: c, y: r, active: true, isPowerPellet: isPowerPellet });
+          }
         }
       }
     }
@@ -3721,7 +3747,49 @@ class PixelGobblerGame {
     }
   }
 
+  getWrappedPos(x, y, dx, dy) {
+    let nx = x + dx;
+    let ny = y + dy;
+    
+    // Wrap around horizontally
+    if (nx < 0) {
+      nx = this.gridSize - 1;
+    } else if (nx >= this.gridSize) {
+      nx = 0;
+    }
+    
+    // Clamp vertically (no vertical wrap-around)
+    if (ny < 0 || ny >= this.gridSize) {
+      return null;
+    }
+    
+    return { x: nx, y: ny };
+  }
+
+  isValidMove(x, y, dx, dy) {
+    const next = this.getWrappedPos(x, y, dx, dy);
+    if (!next) return false;
+    return this.maze[next.y][next.x] === 0;
+  }
+
+  handleCollision() {
+    if (this.frightenedTimer > 0) {
+      score += 200;
+      sounds.playTone(600, 'triangle', 0.15);
+      this.ghost.x = 9;
+      this.ghost.y = 10;
+      this.frightenedTimer = 0; // End frightened mode for this ghost
+    } else {
+      triggerGameOver();
+    }
+  }
+
   update(dt) {
+    if (this.frightenedTimer > 0) {
+      this.frightenedTimer -= dt;
+      if (this.frightenedTimer < 0) this.frightenedTimer = 0;
+    }
+
     this.playerTimer += dt;
     this.ghostTimer += dt;
 
@@ -3729,34 +3797,36 @@ class PixelGobblerGame {
       this.playerTimer = 0;
 
       if (this.nextDir.x !== 0 || this.nextDir.y !== 0) {
-        const nx = this.player.x + this.nextDir.x;
-        const ny = this.player.y + this.nextDir.y;
-        if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize && this.maze[ny][nx] === 0) {
+        if (this.isValidMove(this.player.x, this.player.y, this.nextDir.x, this.nextDir.y)) {
           this.playerDir = { ...this.nextDir };
+          this.facingDir = { ...this.nextDir };
         }
-        // Consume buffered input immediately after checking
         this.nextDir = { x: 0, y: 0 };
       }
 
       if (this.playerDir.x !== 0 || this.playerDir.y !== 0) {
-        const nx = this.player.x + this.playerDir.x;
-        const ny = this.player.y + this.playerDir.y;
-        
-        if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize && this.maze[ny][nx] === 0) {
-          this.player.x = nx;
-          this.player.y = ny;
+        if (this.isValidMove(this.player.x, this.player.y, this.playerDir.x, this.playerDir.y)) {
+          const next = this.getWrappedPos(this.player.x, this.player.y, this.playerDir.x, this.playerDir.y);
+          this.player.x = next.x;
+          this.player.y = next.y;
           
-          // Check collision immediately after player moves to prevent phase-through
+          // Check collision immediately
           if (this.player.x === this.ghost.x && this.player.y === this.ghost.y) {
-            triggerGameOver();
+            this.handleCollision();
             return;
           }
           
-          const dot = this.dots.find(d => d.x === nx && d.y === ny && d.active);
+          const dot = this.dots.find(d => d.x === this.player.x && d.y === this.player.y && d.active);
           if (dot) {
             dot.active = false;
-            score += 10;
-            sounds.playTone(800, 'sine', 0.05);
+            if (dot.isPowerPellet) {
+              score += 50;
+              this.frightenedTimer = 7000; // 7 seconds frightened mode
+              sounds.playTone(900, 'sine', 0.1);
+            } else {
+              score += 10;
+              sounds.playTone(800, 'sine', 0.05);
+            }
             
             const remaining = this.dots.some(d => d.active);
             if (!remaining) {
@@ -3773,7 +3843,10 @@ class PixelGobblerGame {
       }
     }
 
-    const currentGhostInterval = Math.max(120, this.ghostInterval - (this.level - 1) * 15);
+    // Slow ghost down in frightened mode
+    const baseGhostInterval = this.frightenedTimer > 0 ? this.ghostInterval * 1.4 : this.ghostInterval;
+    const currentGhostInterval = Math.max(120, baseGhostInterval - (this.level - 1) * 15);
+    
     if (this.ghostTimer >= currentGhostInterval) {
       this.ghostTimer = 0;
 
@@ -3786,18 +3859,26 @@ class PixelGobblerGame {
 
       let bestDir = null;
       let minDistance = Infinity;
+      let maxDistance = -Infinity;
 
       const isRandomChoice = Math.random() < 0.15;
       const validMoves = [];
       directions.forEach(d => {
-        const nx = this.ghost.x + d.x;
-        const ny = this.ghost.y + d.y;
-        if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize && this.maze[ny][nx] === 0) {
+        if (this.isValidMove(this.ghost.x, this.ghost.y, d.x, d.y)) {
+          const next = this.getWrappedPos(this.ghost.x, this.ghost.y, d.x, d.y);
           validMoves.push(d);
-          const dist = Math.abs(nx - this.player.x) + Math.abs(ny - this.player.y);
-          if (dist < minDistance) {
-            minDistance = dist;
-            bestDir = d;
+          
+          const dist = Math.abs(next.x - this.player.x) + Math.abs(next.y - this.player.y);
+          if (this.frightenedTimer > 0) {
+            if (dist > maxDistance) {
+              maxDistance = dist;
+              bestDir = d;
+            }
+          } else {
+            if (dist < minDistance) {
+              minDistance = dist;
+              bestDir = d;
+            }
           }
         }
       });
@@ -3808,12 +3889,13 @@ class PixelGobblerGame {
           chosenDir = validMoves[Math.floor(Math.random() * validMoves.length)];
         }
         if (chosenDir) {
-          this.ghost.x += chosenDir.x;
-          this.ghost.y += chosenDir.y;
+          const next = this.getWrappedPos(this.ghost.x, this.ghost.y, chosenDir.x, chosenDir.y);
+          this.ghost.x = next.x;
+          this.ghost.y = next.y;
           
-          // Check collision immediately after ghost moves to prevent phase-through
+          // Check collision immediately
           if (this.player.x === this.ghost.x && this.player.y === this.ghost.y) {
-            triggerGameOver();
+            this.handleCollision();
             return;
           }
         }
@@ -3821,62 +3903,121 @@ class PixelGobblerGame {
     }
 
     if (this.player.x === this.ghost.x && this.player.y === this.ghost.y) {
-      triggerGameOver();
+      this.handleCollision();
     }
   }
 
   draw(ctx) {
+    // Fill background black
+    ctx.fillStyle = '#06040a';
+    ctx.fillRect(0, 0, 400, 400);
+
+    // Draw walls
     for (let r = 0; r < this.gridSize; r++) {
       for (let c = 0; c < this.gridSize; c++) {
         if (this.maze[r][c] === 1) {
-          ctx.fillStyle = '#3b82f6';
-          ctx.fillRect(c * this.tileSize + 2, r * this.tileSize + 2, this.tileSize - 4, this.tileSize - 4);
-          ctx.strokeStyle = '#2563eb';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(c * this.tileSize + 2, r * this.tileSize + 2, this.tileSize - 4, this.tileSize - 4);
+          ctx.fillStyle = '#1e3a8a';
+          ctx.fillRect(c * this.tileSize, r * this.tileSize, this.tileSize, this.tileSize);
+          
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(c * this.tileSize + 1, r * this.tileSize + 1, this.tileSize - 2, this.tileSize - 2);
         }
       }
     }
 
-    ctx.fillStyle = '#ffd700';
+    // Draw ghost house gate (pink bar)
+    ctx.strokeStyle = '#ff79c6';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(9 * this.tileSize, 9.5 * this.tileSize);
+    ctx.lineTo(11 * this.tileSize, 9.5 * this.tileSize);
+    ctx.stroke();
+
+    // Draw dots & power pellets
     this.dots.forEach(d => {
       if (d.active) {
+        ctx.fillStyle = '#ffd700';
         ctx.beginPath();
-        ctx.arc(d.x * this.tileSize + this.tileSize/2, d.y * this.tileSize + this.tileSize/2, 4, 0, Math.PI * 2);
+        if (d.isPowerPellet) {
+          if (Math.floor(Date.now() / 250) % 2 === 0) {
+            ctx.arc(d.x * this.tileSize + this.tileSize/2, d.y * this.tileSize + this.tileSize/2, 6, 0, Math.PI * 2);
+          } else {
+            ctx.arc(d.x * this.tileSize + this.tileSize/2, d.y * this.tileSize + this.tileSize/2, 3, 0, Math.PI * 2);
+          }
+        } else {
+          ctx.arc(d.x * this.tileSize + this.tileSize/2, d.y * this.tileSize + this.tileSize/2, 2.5, 0, Math.PI * 2);
+        }
         ctx.fill();
       }
     });
 
+    // Draw Pac-Man
     ctx.fillStyle = '#ffd700';
     const px = this.player.x * this.tileSize + this.tileSize/2;
     const py = this.player.y * this.tileSize + this.tileSize/2;
+    const radius = this.tileSize * 0.4;
+    
+    let startAngle = 0.2 * Math.PI;
+    let endAngle = 1.8 * Math.PI;
+    
+    if (this.facingDir.x === -1) {
+      startAngle = 1.2 * Math.PI;
+      endAngle = 0.8 * Math.PI;
+    } else if (this.facingDir.y === 1) {
+      startAngle = 0.7 * Math.PI;
+      endAngle = 0.3 * Math.PI;
+    } else if (this.facingDir.y === -1) {
+      startAngle = 1.7 * Math.PI;
+      endAngle = 1.3 * Math.PI;
+    }
+    
     ctx.beginPath();
-    ctx.arc(px, py, 15, 0.2 * Math.PI, 1.8 * Math.PI);
+    ctx.arc(px, py, radius, startAngle, endAngle);
     ctx.lineTo(px, py);
     ctx.closePath();
     ctx.fill();
 
-    const gx = this.ghost.x * this.tileSize + 5;
-    const gy = this.ghost.y * this.tileSize + 5;
-    const gSize = 30;
+    // Draw Ghost
+    const gx = this.ghost.x * this.tileSize + 2;
+    const gy = this.ghost.y * this.tileSize + 2;
+    const gSize = this.tileSize - 4;
     
-    ctx.fillStyle = '#ff0055';
+    let ghostColor = '#ff0055';
+    let eyeColor = '#ffffff';
+    let pupilColor = '#00f0ff';
+    
+    if (this.frightenedTimer > 0) {
+      if (this.frightenedTimer < 2000 && Math.floor(Date.now() / 250) % 2 === 0) {
+        ghostColor = '#ffffff';
+        eyeColor = '#ff0000';
+        pupilColor = '#ff0000';
+      } else {
+        ghostColor = '#2563eb';
+        eyeColor = '#ffd700';
+        pupilColor = '#ff0000';
+      }
+    }
+    
+    ctx.fillStyle = ghostColor;
     ctx.beginPath();
-    ctx.arc(gx + gSize/2, gy + gSize/2, gSize/2, Math.PI, 0, false);
+    ctx.arc(gx + gSize/2, gy + gSize/2 - 1, gSize/2, Math.PI, 0, false);
     ctx.lineTo(gx + gSize, gy + gSize);
-    ctx.lineTo(gx + (gSize*5)/6, gy + gSize - 5);
+    
+    ctx.lineTo(gx + (gSize * 5)/6, gy + gSize - 2);
     ctx.lineTo(gx + gSize/2, gy + gSize);
-    ctx.lineTo(gx + gSize/6, gy + gSize - 5);
+    ctx.lineTo(gx + gSize/6, gy + gSize - 2);
     ctx.lineTo(gx, gy + gSize);
     ctx.closePath();
     ctx.fill();
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(gx + 6, gy + 10, 5, 5);
-    ctx.fillRect(gx + 17, gy + 10, 5, 5);
-    ctx.fillStyle = '#00f0ff';
-    ctx.fillRect(gx + 8, gy + 11, 2, 2);
-    ctx.fillRect(gx + 19, gy + 11, 2, 2);
+    
+    // Draw Ghost eyes
+    ctx.fillStyle = eyeColor;
+    ctx.fillRect(gx + gSize * 0.2, gy + gSize * 0.25, gSize * 0.2, gSize * 0.25);
+    ctx.fillRect(gx + gSize * 0.6, gy + gSize * 0.25, gSize * 0.2, gSize * 0.25);
+    ctx.fillStyle = pupilColor;
+    ctx.fillRect(gx + gSize * 0.25, gy + gSize * 0.3, gSize * 0.1, gSize * 0.15);
+    ctx.fillRect(gx + gSize * 0.65, gy + gSize * 0.3, gSize * 0.1, gSize * 0.15);
   }
 
   cleanup() {}

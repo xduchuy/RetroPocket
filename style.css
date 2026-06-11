@@ -554,6 +554,50 @@ body {
     8px 10px var(--yellow);
 }
 
+/* 16. Time Warp Icon */
+.pixel-time-icon::after {
+  content: '';
+  position: absolute;
+  top: 10px; left: 14px;
+  width: 6px; height: 6px;
+  background: var(--pink);
+  box-shadow:
+    -6px 0px var(--pink), 6px 0px var(--pink),
+    -6px 20px var(--pink), 0px 20px var(--pink), 6px 20px var(--pink),
+    -6px 4px var(--pink), 6px 4px var(--pink),
+    -6px 16px var(--pink), 6px 16px var(--pink),
+    -3px 8px var(--pink), 3px 8px var(--pink),
+    -3px 12px var(--pink), 3px 12px var(--pink),
+    0px 4px var(--yellow), 0px 16px var(--yellow);
+}
+
+/* 17. Rhythm Icon */
+.pixel-rhythm-icon::after {
+  content: '';
+  position: absolute;
+  top: 12px; left: 14px;
+  width: 8px; height: 8px;
+  background: var(--yellow);
+  box-shadow:
+    6px -6px var(--yellow), 6px -12px var(--yellow),
+    12px -12px var(--cyan), 18px -12px var(--cyan),
+    0px 0px var(--yellow);
+}
+
+/* 18. Gravity Icon */
+.pixel-gravity-icon::after {
+  content: '';
+  position: absolute;
+  top: 10px; left: 16px;
+  width: 6px; height: 6px;
+  background: var(--orange);
+  box-shadow:
+    0px -6px var(--orange), -6px 0px var(--orange), 6px 0px var(--orange),
+    0px 12px var(--pink), 0px 18px var(--pink), -6px 12px var(--pink), 6px 12px var(--pink),
+    0px 0px var(--orange), 0px 6px var(--pink);
+}
+
+
 .game-title {
   font-size: 11px;
   margin-bottom: 8px;
@@ -588,6 +632,10 @@ body {
 .game-card[data-game="catcher"]:hover { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
 .game-card[data-game="jumper"]:hover { border-color: var(--green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
 .game-card[data-game="pong"]:hover { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+.game-card[data-game="time"]:hover { border-color: var(--pink); box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); }
+.game-card[data-game="rhythm"]:hover { border-color: var(--yellow); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+.game-card[data-game="gravity"]:hover { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 108, 0, 0.4); }
+
 
 
 /* Theme Colors for Texts */
@@ -1461,3 +1509,74 @@ body.playing-mode {
 .playing-mode .modal-overlay {
   z-index: 2000;
 }
+
+/* 13. Dynamic 1.5x Scaling for New Games in Plenty of Space */
+@media (min-height: 700px) {
+  body[data-active-game="time"].playing-mode .mobile-controller,
+  body[data-active-game="rhythm"].playing-mode .mobile-controller,
+  body[data-active-game="gravity"].playing-mode .mobile-controller {
+    min-height: 330px;
+  }
+
+  /* Time Warp D-Pad (1.5x) */
+  body[data-active-game="time"].playing-mode .dpad-grid {
+    grid-template-columns: repeat(3, 114px) !important;
+    grid-template-rows: repeat(3, 114px) !important;
+  }
+  body[data-active-game="time"].playing-mode .dpad-btn {
+    font-size: 27px !important;
+  }
+  body[data-active-game="time"].playing-mode #dpadUp {
+    border-radius: 9px 9px 0 0 !important;
+  }
+  body[data-active-game="time"].playing-mode #dpadDown {
+    border-radius: 0 0 9px 9px !important;
+  }
+  body[data-active-game="time"].playing-mode #dpadLeft {
+    border-radius: 9px 0 0 9px !important;
+  }
+  body[data-active-game="time"].playing-mode #dpadRight {
+    border-radius: 0 9px 9px 0 !important;
+  }
+
+  /* Neon Beat (Rhythm) (1.5x) */
+  body[data-active-game="rhythm"].playing-mode .lr-action-layout {
+    padding: 0 10px !important;
+    gap: 30px !important;
+  }
+  body[data-active-game="rhythm"].playing-mode .movement-group {
+    border-radius: 9px !important;
+  }
+  body[data-active-game="rhythm"].playing-mode .move-btn {
+    width: 87px !important;
+    height: 78px !important;
+    font-size: 24px !important;
+  }
+  body[data-active-game="rhythm"].playing-mode #btnMoveLeft {
+    border-radius: 9px 0 0 9px !important;
+  }
+  body[data-active-game="rhythm"].playing-mode #btnMoveRight {
+    border-radius: 0 9px 9px 0 !important;
+  }
+  body[data-active-game="rhythm"].playing-mode .action-group {
+    border-radius: 52px !important;
+    padding: 9px 18px !important;
+    gap: 18px !important;
+  }
+  body[data-active-game="rhythm"].playing-mode .action-btn {
+    width: 90px !important;
+    height: 90px !important;
+    font-size: 18px !important;
+  }
+
+  /* Gravity Flip (1.5x) */
+  body[data-active-game="gravity"].playing-mode .jump-layout {
+    padding: 0 20px !important;
+  }
+  body[data-active-game="gravity"].playing-mode .jump-btn {
+    height: 96px !important;
+    font-size: 21px !important;
+    border-radius: 18px !important;
+  }
+}
+

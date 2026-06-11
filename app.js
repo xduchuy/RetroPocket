@@ -96,7 +96,7 @@ const STATE = {
   gameover: 'gameover'
 };
 
-const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker', 'catcher', 'jumper', 'pong', 'time', 'rhythm', 'gravity'];
+const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker', 'catcher', 'jumper', 'pong', 'time', 'rhythm', 'gravity', 'flow', 'driller', 'orbit', 'ninja', 'helix', 'shield'];
 
 const DOM = {
   menuScreen: document.getElementById('menuScreen'),
@@ -206,6 +206,12 @@ const TRANSLATIONS = {
     desc_time: 'Time only flows when you move! Dodge bullet patterns and survive.',
     desc_rhythm: 'Match falling neon beats on 3 lanes. Keep the combo going to play synth music!',
     desc_gravity: 'Gravity-flipping endless runner. Flip floor to ceiling to dodge spikes!',
+    desc_flow: 'Rotate pipe segments to connect the plasma flow from source to receiver.',
+    desc_driller: 'Drill down through colored blocks. Watch for falling bricks and refill your oxygen!',
+    desc_orbit: 'Switch between inner and outer orbits to dodge cosmic debris and collect stars.',
+    desc_ninja: 'Climb the walls, jump side to side to avoid spikes, and slice flying shurikens!',
+    desc_helix: 'Rotate the helix tower to let the ball bounce and drop through safety gaps.',
+    desc_shield: 'Rotate the orbit shield to protect the central reactor core from incoming meteors.',
 
     
     instruct_snake: 'Navigate the grid. Eat green/gold apples. Do not crash!',
@@ -226,6 +232,12 @@ const TRANSLATIONS = {
     instruct_time: 'Use D-Pad to move. Time freezes when you stop. Avoid bullet trails!',
     instruct_rhythm: 'Press Left, Action (Up), or Right as notes cross the target line!',
     instruct_gravity: 'Press JUMP or Spacebar to flip gravity instantly. Avoid floor/ceiling spikes!',
+    instruct_flow: 'Tap tiles directly on the canvas to rotate them. Link the source (top) to the sink (bottom) before plasma flows!',
+    instruct_driller: 'Move Left/Right. Press Down or DRILL to dig. Dig matching colors for chains. Collect O2 canisters!',
+    instruct_orbit: 'Press JUMP or Space to switch between inner/outer orbits. Dodge red rocks and collect gold stars.',
+    instruct_ninja: 'Press JUMP or Space to leap to the other wall. Your jump is a spin-attack that destroys shurikens. Avoid wall spikes!',
+    instruct_helix: 'Press Left/Right to rotate the tower (or drag horizontally on canvas). Bounce on safe platforms and fall through gaps!',
+    instruct_shield: 'Press Left/Right to rotate the shield arc around the core. Deflect incoming meteors!',
 
     
     title_snake: 'SNAKE PIXEL',
@@ -246,6 +258,12 @@ const TRANSLATIONS = {
     title_time: 'TIME WARP',
     title_rhythm: 'NEON BEAT',
     title_gravity: 'GRAVITY FLIP',
+    title_flow: 'NEON FLOW',
+    title_driller: 'PIXEL DRILLER',
+    title_orbit: 'ORBITAL DODGE',
+    title_ninja: 'NINJA LEAP',
+    title_helix: 'HELIX FALL',
+    title_shield: 'CORE SHIELD',
 
     help_btn: '❓ HELP',
     help_title: '❓ HOW TO PLAY ❓',
@@ -314,6 +332,12 @@ const TRANSLATIONS = {
     desc_time: 'Thời gian chỉ trôi khi bạn di chuyển! Né tránh làn đạn và sinh tồn.',
     desc_rhythm: 'Khớp các nốt nhạc neon rơi trên 3 làn. Giữ combo để tạo nhạc điện tử!',
     desc_gravity: 'Chạy vô tận đảo ngược trọng lực. Lật giữa sàn và trần để né gai nhọn!',
+    desc_flow: 'Xoay các đoạn ống để nối dòng huyết tương chảy từ nguồn đến đích nhận.',
+    desc_driller: 'Khoan sâu qua các khối gạch màu. Tránh đá rơi đè và nạp lại oxy!',
+    desc_orbit: 'Chuyển đổi giữa hai vòng quỹ đạo để né tránh thiên thạch và nhặt năng lượng vàng.',
+    desc_ninja: 'Bám tường leo cao, nhảy qua lại để tránh gai nhọn và chém phi tiêu bay!',
+    desc_helix: 'Xoay tháp để bóng nảy liên tục rơi qua khe hở của các tấm đệm an toàn.',
+    desc_shield: 'Xoay lá chắn quỹ đạo để bảo vệ hạt nhân lò phản ứng ở tâm khỏi thiên thạch va chạm.',
 
     
     instruct_snake: 'Di chuyển trong lưới. Ăn táo xanh/vàng. Đừng đâm vào đuôi!',
@@ -334,6 +358,12 @@ const TRANSLATIONS = {
     instruct_time: 'Dùng D-Pad để di chuyển. Đứng yên để ngưng đọng thời gian. Tránh đạn!',
     instruct_rhythm: 'Nhấn Trái, Hành động (Lên), hoặc Phải khi nốt nhạc chạm vạch mục tiêu!',
     instruct_gravity: 'Nhấn NHẢY hoặc Phím Cách để đảo ngược trọng lực. Tránh gai sàn/trần!',
+    instruct_flow: 'Chạm trực tiếp vào các ô để xoay. Kết nối nguồn (trên) với đích (dưới) trước khi dòng năng lượng tràn ra!',
+    instruct_driller: 'Trái/Phải để di chuyển. Nhấn Xuống hoặc DRILL để khoan. Khoan khối cùng màu tạo chuỗi nổ. Nhặt O2!',
+    instruct_orbit: 'Nhấn NHẢY hoặc phím Cách để chuyển quỹ đạo trong/ngoài. Né tránh đá đỏ và nhặt sao vàng.',
+    instruct_ninja: 'Nhấn NHẢY hoặc phím Cách để nhảy sang tường đối diện. Khi nhảy sẽ tự xoay kiếm chém phi tiêu. Tránh gai!',
+    instruct_helix: 'Nhấn Trái/Phải để xoay tháp (hoặc vuốt ngang màn hình). Đáp lên bực an toàn và rơi qua khe!',
+    instruct_shield: 'Nhấn Trái/Phải để xoay lá chắn quanh tâm. Cản phá tất cả các thiên thạch bay vào!',
 
     
     title_snake: 'RẮN SĂN MỒI',
@@ -354,6 +384,12 @@ const TRANSLATIONS = {
     title_time: 'TIME WARP',
     title_rhythm: 'NEON BEAT',
     title_gravity: 'ĐẢO TRỌNG LỰC',
+    title_flow: 'NEON FLOW',
+    title_driller: 'KHOAN NEON',
+    title_orbit: 'QUỸ ĐẠO NÉ TRÁNH',
+    title_ninja: 'NINJA BÁM TƯỜNG',
+    title_helix: 'HELIX FALL',
+    title_shield: 'LÁ CHẮN HẠT NHÂN',
 
     help_btn: '❓ TRỢ GIÚP',
     help_title: '❓ HƯỚNG DẪN CHƠI ❓',
@@ -686,6 +722,36 @@ function launchGame(gameKey) {
     DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnJumpAction').textContent = 'FLIP';
     DOM.instructionText.textContent = getTranslation('instruct_gravity');
+  } else if (gameKey === 'flow') {
+    DOM.instructionText.textContent = getTranslation('instruct_flow');
+  } else if (gameKey === 'driller') {
+    DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
+    document.getElementById('btnActionA').textContent = 'DRILL';
+    document.getElementById('btnActionB').textContent = 'B';
+    DOM.instructionText.textContent = getTranslation('instruct_driller');
+  } else if (gameKey === 'orbit') {
+    DOM.ctrlJumpOnly.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
+    document.getElementById('btnJumpAction').textContent = 'SWITCH';
+    DOM.instructionText.textContent = getTranslation('instruct_orbit');
+  } else if (gameKey === 'ninja') {
+    DOM.ctrlJumpOnly.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
+    document.getElementById('btnJumpAction').textContent = 'LEAP';
+    DOM.instructionText.textContent = getTranslation('instruct_ninja');
+  } else if (gameKey === 'helix') {
+    DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
+    document.getElementById('btnActionA').textContent = '---';
+    document.getElementById('btnActionB').textContent = '---';
+    DOM.instructionText.textContent = getTranslation('instruct_helix');
+  } else if (gameKey === 'shield') {
+    DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
+    document.getElementById('btnActionA').textContent = '---';
+    document.getElementById('btnActionB').textContent = '---';
+    DOM.instructionText.textContent = getTranslation('instruct_shield');
   }
 
 
@@ -749,6 +815,12 @@ function initActiveGame() {
   else if (activeGameKey === 'time') activeGame = new TimeWarpGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'rhythm') activeGame = new NeonBeatGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'gravity') activeGame = new GravityFlipGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'flow') activeGame = new FlowGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'driller') activeGame = new DrillerGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'orbit') activeGame = new OrbitGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'ninja') activeGame = new NinjaGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'helix') activeGame = new HelixGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'shield') activeGame = new CoreShieldGame(DOM.canvas, difficulty);
 
 
 
@@ -6200,6 +6272,1470 @@ class GravityFlipGame {
 
   cleanup() {
     this.obstacles = [];
+    this.particles = [];
+  }
+}
+
+// ----------------------------------------------------
+// 19. NEON FLOW
+// ----------------------------------------------------
+class FlowGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.diff = diff;
+    this.rows = 5;
+    this.cols = 5;
+    this.grid = [];
+    this.cellSize = canvas.width / 5;
+    this.flowTimer = 5000;
+    this.flowTimeMax = 5000;
+    this.isFlowing = false;
+    this.flowPath = [];
+    this.leakCell = null;
+    this.gameOverTriggered = false;
+    this.source = { r: 0, c: 2, dir: 0 };
+    this.target = { r: 4, c: 2, dir: 2 };
+    this.flowSpeed = 1000;
+    this.lastFlowTick = 0;
+    this.winTriggered = false;
+  }
+
+  init() {
+    this.cellSize = this.canvas.width / 5;
+    const types = ['straight', 'curve', 'cross'];
+    for (let r = 0; r < this.rows; r++) {
+      this.grid[r] = [];
+      for (let c = 0; c < this.cols; c++) {
+        let type = types[Math.floor(Math.random() * types.length)];
+        if ((r === 0 && c === 2) || (r === 4 && c === 2)) {
+          type = Math.random() < 0.5 ? 'straight' : 'cross';
+        }
+        this.grid[r][c] = {
+          type: type,
+          rotation: Math.floor(Math.random() * 4),
+          filled: 0
+        };
+      }
+    }
+    this.clickHandler = this.handleClick.bind(this);
+    this.canvas.addEventListener('click', this.clickHandler);
+    this.canvas.addEventListener('touchstart', this.clickHandler);
+    
+    if (this.diff === 'easy') { this.flowTimeMax = 7000; this.flowSpeed = 1200; }
+    else if (this.diff === 'hard') { this.flowTimeMax = 3500; this.flowSpeed = 700; }
+    else { this.flowTimeMax = 5000; this.flowSpeed = 1000; }
+    this.flowTimer = this.flowTimeMax;
+  }
+
+  handleClick(e) {
+    if (appState !== STATE.playing || this.winTriggered || this.gameOverTriggered) return;
+    if (e.type === 'touchstart') e.preventDefault();
+    
+    const rect = this.canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const x = ((clientX - rect.left) / rect.width) * this.canvas.width;
+    const y = ((clientY - rect.top) / rect.height) * this.canvas.height;
+    
+    const col = Math.floor(x / this.cellSize);
+    const row = Math.floor(y / this.cellSize);
+    
+    if (row >= 0 && row < this.rows && col >= 0 && col < this.cols) {
+      if (this.grid[row][col].filled > 0) return;
+      sounds.playClick();
+      this.grid[row][col].rotation = (this.grid[row][col].rotation + 1) % 4;
+    }
+  }
+
+  getConnections(tile) {
+    const rot = tile.rotation;
+    if (tile.type === 'straight') {
+      return (rot % 2 === 0) ? [0, 2] : [1, 3];
+    } else if (tile.type === 'curve') {
+      return [rot, (rot + 1) % 4];
+    } else if (tile.type === 'cross') {
+      return [0, 1, 2, 3];
+    }
+    return [];
+  }
+
+  update(dt) {
+    if (this.winTriggered || this.gameOverTriggered) return;
+
+    if (!this.isFlowing) {
+      this.flowTimer -= dt;
+      if (this.flowTimer <= 0) {
+        this.isFlowing = true;
+        this.flowPath = [{ r: 0, c: 2, inDir: 0 }];
+        this.lastFlowTick = performance.now();
+        sounds.playTone(300, 'sine', 0.2);
+      }
+    } else {
+      const now = performance.now();
+      const elapsed = now - this.lastFlowTick;
+      const progress = Math.min(1, elapsed / this.flowSpeed);
+      
+      const currentCell = this.flowPath[this.flowPath.length - 1];
+      if (currentCell) {
+        this.grid[currentCell.r][currentCell.c].filled = progress;
+      }
+
+      if (progress >= 1) {
+        this.lastFlowTick = now;
+        this.advanceFlow();
+      }
+    }
+  }
+
+  advanceFlow() {
+    const current = this.flowPath[this.flowPath.length - 1];
+    const tile = this.grid[current.r][current.c];
+    const connections = this.getConnections(tile);
+    const oppositeDir = (current.inDir + 2) % 4;
+    if (!connections.includes(oppositeDir)) {
+      this.triggerLeak(current.r, current.c);
+      return;
+    }
+
+    let outDir = null;
+    if (tile.type === 'cross') {
+      outDir = current.inDir;
+    } else {
+      outDir = connections.find(d => d !== oppositeDir);
+    }
+
+    if (current.r === 4 && current.c === 2 && outDir === 2) {
+      this.triggerWin();
+      return;
+    }
+
+    let nr = current.r;
+    let nc = current.c;
+    if (outDir === 0) nr--;
+    else if (outDir === 1) nc++;
+    else if (outDir === 2) nr++;
+    else if (outDir === 3) nc--;
+
+    if (nr < 0 || nr >= this.rows || nc < 0 || nc >= this.cols) {
+      this.triggerLeak(current.r, current.c);
+      return;
+    }
+
+    const nextTile = this.grid[nr][nc];
+    const nextConnections = this.getConnections(nextTile);
+    const nextOppositeDir = (outDir + 2) % 4;
+    
+    if (!nextConnections.includes(nextOppositeDir)) {
+      this.triggerLeak(nr, nc);
+      return;
+    }
+
+    if (this.flowPath.some(cell => cell.r === nr && cell.c === nc)) {
+      this.triggerLeak(nr, nc);
+      return;
+    }
+
+    this.flowPath.push({ r: nr, c: nc, inDir: outDir });
+    score += 10;
+    sounds.playTone(350 + this.flowPath.length * 30, 'triangle', 0.1);
+  }
+
+  triggerLeak(r, c) {
+    this.gameOverTriggered = true;
+    this.leakCell = { r, c };
+    sounds.playHit();
+    setTimeout(() => {
+      triggerGameOver();
+    }, 1200);
+  }
+
+  triggerWin() {
+    this.winTriggered = true;
+    score += 100;
+    sounds.playWin();
+    setTimeout(() => {
+      this.init();
+      this.winTriggered = false;
+      this.isFlowing = false;
+    }, 2000);
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#060412';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.strokeStyle = '#1a182d';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 5; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * this.cellSize, 0);
+      ctx.lineTo(i * this.cellSize, this.canvas.height);
+      ctx.moveTo(0, i * this.cellSize);
+      ctx.lineTo(this.canvas.width, i * this.cellSize);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#39ff14';
+    ctx.beginPath();
+    ctx.moveTo(2 * this.cellSize + this.cellSize/2 - 10, 5);
+    ctx.lineTo(2 * this.cellSize + this.cellSize/2 + 10, 5);
+    ctx.lineTo(2 * this.cellSize + this.cellSize/2, 20);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#00f0ff';
+    ctx.beginPath();
+    ctx.moveTo(2 * this.cellSize + this.cellSize/2 - 10, this.canvas.height - 20);
+    ctx.lineTo(2 * this.cellSize + this.cellSize/2 + 10, this.canvas.height - 20);
+    ctx.lineTo(2 * this.cellSize + this.cellSize/2, this.canvas.height - 5);
+    ctx.closePath();
+    ctx.fill();
+
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        this.drawTile(ctx, r, c);
+      }
+    }
+
+    if (!this.isFlowing) {
+      ctx.fillStyle = 'rgba(255, 0, 127, 0.15)';
+      ctx.fillRect(2 * this.cellSize, 0, this.cellSize, 20);
+      ctx.fillStyle = '#ff007f';
+      ctx.font = '8px "Press Start 2P"';
+      ctx.textAlign = 'center';
+      const secLeft = Math.ceil(this.flowTimer / 1000);
+      ctx.fillText(`${secLeft}s`, 2 * this.cellSize + this.cellSize/2, 14);
+    }
+  }
+
+  drawTile(ctx, r, c) {
+    const tile = this.grid[r][c];
+    const x = c * this.cellSize + this.cellSize / 2;
+    const y = r * this.cellSize + this.cellSize / 2;
+    const size = this.cellSize;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(tile.rotation * Math.PI / 2);
+
+    ctx.strokeStyle = '#231c3c';
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    this.getPath(ctx, tile.type);
+    ctx.stroke();
+
+    if (tile.filled > 0) {
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 8;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#00f0ff';
+      this.getPath(ctx, tile.type);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#ff007f';
+    ctx.shadowBlur = 0;
+    const connections = this.getConnections(tile);
+    connections.forEach(dir => {
+      ctx.save();
+      ctx.rotate((dir - tile.rotation) * Math.PI / 2);
+      ctx.fillRect(-6, -size/2, 12, 4);
+      ctx.restore();
+    });
+
+    ctx.restore();
+
+    if (this.leakCell && this.leakCell.r === r && this.leakCell.c === c) {
+      ctx.save();
+      ctx.strokeStyle = '#ff3333';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(c * this.cellSize + this.cellSize/2, r * this.cellSize + this.cellSize/2, 18, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(c * this.cellSize + 15, r * this.cellSize + 15);
+      ctx.lineTo(c * this.cellSize + this.cellSize - 15, r * this.cellSize + this.cellSize - 15);
+      ctx.moveTo(c * this.cellSize + this.cellSize - 15, r * this.cellSize + 15);
+      ctx.lineTo(c * this.cellSize + 15, r * this.cellSize + this.cellSize - 15);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  getPath(ctx, type) {
+    const r = this.cellSize / 2;
+    ctx.beginPath();
+    if (type === 'straight') {
+      ctx.moveTo(0, -r);
+      ctx.lineTo(0, r);
+    } else if (type === 'curve') {
+      ctx.moveTo(0, -r);
+      ctx.lineTo(0, 0);
+      ctx.lineTo(r, 0);
+    } else if (type === 'cross') {
+      ctx.moveTo(0, -r);
+      ctx.lineTo(0, r);
+      ctx.moveTo(-r, 0);
+      ctx.lineTo(r, 0);
+    }
+  }
+
+  cleanup() {
+    this.canvas.removeEventListener('click', this.clickHandler);
+    this.canvas.removeEventListener('touchstart', this.clickHandler);
+    this.grid = [];
+  }
+}
+
+// ----------------------------------------------------
+// 20. PIXEL DRILLER
+// ----------------------------------------------------
+class DrillerGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.diff = diff;
+    this.colCount = 8;
+    this.rowCount = 12;
+    this.cellSize = 50;
+    this.grid = [];
+    this.player = { col: 3, y: 150, targetY: 150, isFalling: false, lives: 3, flashTime: 0 };
+    this.scrollOffset = 0;
+    this.scrollSpeed = 15;
+    this.oxygen = 100;
+    this.oxygenDecay = 3.5;
+    this.depth = 0;
+    this.particles = [];
+  }
+
+  init() {
+    const colors = ['#00f0ff', '#ff007f', '#ffd700', '#39ff14'];
+    for (let r = 0; r < this.rowCount; r++) {
+      this.grid[r] = [];
+      for (let c = 0; c < this.colCount; c++) {
+        if (r < 3) {
+          this.grid[r][c] = null;
+        } else {
+          const rChance = Math.random();
+          if (rChance < 0.06) {
+            this.grid[r][c] = { color: '#ffffff', type: 'o2' };
+          } else {
+            this.grid[r][c] = { color: colors[Math.floor(Math.random() * colors.length)], type: 'block' };
+          }
+        }
+      }
+    }
+    this.player.col = 3;
+    this.player.y = 100;
+    this.player.targetY = 100;
+    this.player.lives = (this.diff === 'easy') ? 4 : (this.diff === 'hard') ? 2 : 3;
+    this.scrollSpeed = (this.diff === 'easy') ? 10 : (this.diff === 'hard') ? 22 : 15;
+    this.oxygenDecay = (this.diff === 'easy') ? 2.5 : (this.diff === 'hard') ? 4.5 : 3.5;
+  }
+
+  update(dt) {
+    const dtSec = dt / 1000;
+    if (this.player.flashTime > 0) this.player.flashTime -= dt;
+
+    this.scrollOffset += this.scrollSpeed * dtSec;
+    this.depth += this.scrollSpeed * dtSec / 10;
+    score = Math.floor(this.depth);
+
+    if (this.scrollOffset >= this.cellSize) {
+      this.scrollOffset -= this.cellSize;
+      this.grid.shift();
+      
+      const newRow = [];
+      const colors = ['#00f0ff', '#ff007f', '#ffd700', '#39ff14'];
+      for (let c = 0; c < this.colCount; c++) {
+        const rChance = Math.random();
+        if (rChance < 0.05) {
+          newRow.push({ color: '#ffffff', type: 'o2' });
+        } else {
+          newRow.push({ color: colors[Math.floor(Math.random() * colors.length)], type: 'block' });
+        }
+      }
+      this.grid.push(newRow);
+      this.player.y -= this.cellSize;
+      this.player.targetY -= this.cellSize;
+    }
+
+    this.oxygen -= this.oxygenDecay * dtSec;
+    if (this.oxygen <= 0) {
+      sounds.playHit();
+      triggerGameOver();
+      return;
+    }
+
+    if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['Left']) {
+      keysPressed['ArrowLeft'] = false;
+      keysPressed['a'] = false;
+      if (this.player.col > 0) {
+        const pRow = Math.floor(this.player.y / this.cellSize);
+        if (pRow >= 0 && pRow < this.grid.length && !this.grid[pRow][this.player.col - 1]) {
+          this.player.col--;
+          sounds.playTone(400, 'triangle', 0.05);
+        }
+      }
+    }
+    if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['Right']) {
+      keysPressed['ArrowRight'] = false;
+      keysPressed['d'] = false;
+      if (this.player.col < this.colCount - 1) {
+        const pRow = Math.floor(this.player.y / this.cellSize);
+        if (pRow >= 0 && pRow < this.grid.length && !this.grid[pRow][this.player.col + 1]) {
+          this.player.col++;
+          sounds.playTone(400, 'triangle', 0.05);
+        }
+      }
+    }
+
+    if (keysPressed['ArrowDown'] || keysPressed['s'] || keysPressed['Down'] || keysPressed['ArrowUp'] || keysPressed['w']) {
+      keysPressed['ArrowDown'] = false;
+      keysPressed['ArrowUp'] = false;
+      keysPressed['s'] = false;
+      keysPressed['w'] = false;
+      this.drillDown();
+    }
+
+    const pRow = Math.floor(this.player.y / this.cellSize);
+    const belowRow = pRow + 1;
+    if (belowRow >= 0 && belowRow < this.grid.length) {
+      const blockBelow = this.grid[belowRow][this.player.col];
+      if (!blockBelow) {
+        this.player.isFalling = true;
+        this.player.y += 300 * dtSec;
+        const newPRow = Math.floor(this.player.y / this.cellSize);
+        if (newPRow >= 0 && newPRow + 1 < this.grid.length && this.grid[newPRow + 1][this.player.col]) {
+          this.player.y = newPRow * this.cellSize;
+          this.player.isFalling = false;
+        }
+      } else {
+        this.player.isFalling = false;
+        this.player.y = pRow * this.cellSize;
+      }
+    }
+
+    if (this.player.y - this.scrollOffset <= 10) {
+      this.player.y = 100;
+      this.player.lives--;
+      sounds.playHit();
+      this.player.flashTime = 500;
+      if (this.player.lives <= 0) {
+        triggerGameOver();
+        return;
+      }
+    }
+
+    for (let r = this.grid.length - 2; r >= 0; r--) {
+      for (let c = 0; c < this.colCount; c++) {
+        const b = this.grid[r][c];
+        if (b && !this.grid[r + 1][c]) {
+          this.grid[r + 1][c] = b;
+          this.grid[r][c] = null;
+          const blockY = (r + 1) * this.cellSize;
+          if (c === this.player.col && Math.abs(blockY - this.player.y) < 25) {
+            if (this.player.flashTime <= 0) {
+              this.player.lives--;
+              this.player.flashTime = 1000;
+              sounds.playHit();
+              this.clearAreaAroundPlayer();
+              if (this.player.lives <= 0) {
+                triggerGameOver();
+                return;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtSec;
+      p.y += p.vy * dtSec;
+      p.life -= dt;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
+  }
+
+  clearAreaAroundPlayer() {
+    const pRow = Math.floor(this.player.y / this.cellSize);
+    for (let r = Math.max(0, pRow - 1); r <= Math.min(this.grid.length - 1, pRow + 1); r++) {
+      for (let c = Math.max(0, this.player.col - 1); c <= Math.min(this.colCount - 1, this.player.col + 1); c++) {
+        this.grid[r][c] = null;
+      }
+    }
+  }
+
+  drillDown() {
+    if (this.player.isFalling) return;
+    const pRow = Math.floor(this.player.y / this.cellSize);
+    const targetRow = pRow + 1;
+    if (targetRow >= 0 && targetRow < this.grid.length) {
+      const block = this.grid[targetRow][this.player.col];
+      if (block) {
+        sounds.playTone(200, 'sawtooth', 0.12, 100);
+        const px = this.player.col * this.cellSize + this.cellSize/2;
+        const py = targetRow * this.cellSize + this.cellSize/2;
+        for (let i = 0; i < 8; i++) {
+          this.particles.push({
+            x: px,
+            y: py,
+            vx: (Math.random() - 0.5) * 120,
+            vy: (Math.random() - 0.5) * 120,
+            color: block.color,
+            size: 2 + Math.random() * 3,
+            life: 300 + Math.random() * 200
+          });
+        }
+        if (block.type === 'o2') {
+          this.oxygen = Math.min(100, this.oxygen + 30);
+          this.grid[targetRow][this.player.col] = null;
+          sounds.playScore();
+        } else {
+          const blockColor = block.color;
+          this.drillRecursive(targetRow, this.player.col, blockColor);
+        }
+      }
+    }
+  }
+
+  drillRecursive(r, c, color) {
+    if (r < 0 || r >= this.grid.length || c < 0 || c >= this.colCount) return;
+    const tile = this.grid[r][c];
+    if (tile && tile.type === 'block' && tile.color === color) {
+      this.grid[r][c] = null;
+      setTimeout(() => {
+        this.drillRecursive(r - 1, c, color);
+        this.drillRecursive(r + 1, c, color);
+        this.drillRecursive(r, c - 1, color);
+        this.drillRecursive(r, c + 1, color);
+      }, 30);
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#0a0815';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.save();
+    ctx.translate(0, -this.scrollOffset);
+
+    for (let r = 0; r < this.grid.length; r++) {
+      for (let c = 0; c < this.colCount; c++) {
+        const b = this.grid[r][c];
+        if (b) {
+          const bx = c * this.cellSize;
+          const by = r * this.cellSize;
+          ctx.save();
+          ctx.fillStyle = b.color;
+          ctx.shadowBlur = b.type === 'o2' ? 12 : 5;
+          ctx.shadowColor = b.color;
+          ctx.fillRect(bx + 2, by + 2, this.cellSize - 4, this.cellSize - 4);
+          if (b.type === 'o2') {
+            ctx.fillStyle = '#000000';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('O2', bx + this.cellSize/2, by + this.cellSize/2 + 4);
+          }
+          ctx.restore();
+        }
+      }
+    }
+
+    if (this.player.flashTime <= 0 || Math.floor(performance.now() / 100) % 2 === 0) {
+      const px = this.player.col * this.cellSize + this.cellSize/2;
+      const py = this.player.y + this.cellSize/2;
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(px, py, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.moveTo(px - 6, py + 8);
+      ctx.lineTo(px + 6, py + 8);
+      ctx.lineTo(px, py + 18);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#00f0ff';
+      ctx.fillRect(px - 8, py - 4, 16, 5);
+      ctx.restore();
+    }
+
+    this.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    });
+
+    ctx.restore();
+
+    ctx.fillStyle = '#ff3333';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#ff3333';
+    ctx.beginPath();
+    for (let x = 0; x < this.canvas.width; x += 16) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + 8, 12);
+      ctx.lineTo(x + 16, 0);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.fillRect(10, this.canvas.height - 25, 120, 15);
+    ctx.fillStyle = this.oxygen > 30 ? '#00f0ff' : '#ff007f';
+    ctx.fillRect(10, this.canvas.height - 25, 1.2 * this.oxygen, 15);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '8px "Press Start 2P"';
+    ctx.textAlign = 'left';
+    ctx.fillText(`AIR: ${Math.floor(this.oxygen)}%`, 14, this.canvas.height - 14);
+
+    ctx.textAlign = 'right';
+    let hearts = '';
+    for (let i = 0; i < this.player.lives; i++) hearts += '♥';
+    ctx.fillStyle = '#ff007f';
+    ctx.font = '12px "Press Start 2P"';
+    ctx.fillText(hearts, this.canvas.width - 10, this.canvas.height - 13);
+  }
+
+  cleanup() {
+    this.grid = [];
+    this.particles = [];
+  }
+}
+
+// ----------------------------------------------------
+// 21. ORBITAL DODGE
+// ----------------------------------------------------
+class OrbitGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.diff = diff;
+    this.angle = 0;
+    this.speed = 2.2;
+    this.currentR = 60;
+    this.targetR = 60;
+    this.sunRotation = 0;
+    this.obstacles = [];
+    this.stars = [];
+    this.particles = [];
+    this.spawnTimer = 0;
+    this.spawnInterval = 1200;
+    this.timeElapsed = 0;
+  }
+
+  init() {
+    this.angle = 0;
+    this.currentR = 60;
+    this.targetR = 60;
+    this.obstacles = [];
+    this.stars = [];
+    this.particles = [];
+    this.timeElapsed = 0;
+    if (this.diff === 'easy') { this.speed = 1.8; this.spawnInterval = 1500; }
+    else if (this.diff === 'hard') { this.speed = 2.6; this.spawnInterval = 900; }
+    else { this.speed = 2.2; this.spawnInterval = 1200; }
+  }
+
+  update(dt) {
+    const dtSec = dt / 1000;
+    this.timeElapsed += dt;
+    score = Math.floor(this.timeElapsed / 100);
+    this.angle += this.speed * dtSec;
+    this.currentR += (this.targetR - this.currentR) * 15 * dtSec;
+    this.sunRotation += 0.5 * dtSec;
+
+    if (keysPressed[' '] || keysPressed['ArrowUp'] || keysPressed['w'] || keysPressed['Jump']) {
+      keysPressed[' '] = false;
+      keysPressed['ArrowUp'] = false;
+      keysPressed['w'] = false;
+      keysPressed['Jump'] = false;
+      this.targetR = (this.targetR === 60) ? 110 : 60;
+      sounds.playTone(380, 'sine', 0.06);
+      this.createParticles(this.getPlayerX(), this.getPlayerY(), '#00f0ff', 4);
+    }
+
+    this.spawnTimer += dt;
+    if (this.spawnTimer >= this.spawnInterval) {
+      this.spawnTimer = 0;
+      this.spawnObstacle();
+      if (Math.random() < 0.4) this.spawnStar();
+    }
+
+    const px = this.getPlayerX();
+    const py = this.getPlayerY();
+
+    for (let i = this.obstacles.length - 1; i >= 0; i--) {
+      const o = this.obstacles[i];
+      o.x += o.vx * dtSec;
+      o.y += o.vy * dtSec;
+      o.rotation += o.rotSpeed * dtSec;
+      const dist = Math.hypot(o.x - px, o.y - py);
+      if (dist < o.size + 8) {
+        sounds.playHit();
+        triggerGameOver();
+        return;
+      }
+      if (o.x < -50 || o.x > this.canvas.width + 50 || o.y < -50 || o.y > this.canvas.height + 50) {
+        this.obstacles.splice(i, 1);
+      }
+    }
+
+    for (let i = this.stars.length - 1; i >= 0; i--) {
+      const s = this.stars[i];
+      s.angle += s.speed * dtSec;
+      const sx = 200 + s.r * Math.cos(s.angle);
+      const sy = 200 + s.r * Math.sin(s.angle);
+      const dist = Math.hypot(sx - px, sy - py);
+      if (dist < 18) {
+        score += 50;
+        this.timeElapsed += 500;
+        sounds.playScore();
+        this.createParticles(sx, sy, '#ffd700', 8);
+        this.stars.splice(i, 1);
+        continue;
+      }
+      s.life -= dt;
+      if (s.life <= 0) this.stars.splice(i, 1);
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtSec;
+      p.y += p.vy * dtSec;
+      p.life -= dt;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
+  }
+
+  getPlayerX() { return 200 + this.currentR * Math.cos(this.angle); }
+  getPlayerY() { return 200 + this.currentR * Math.sin(this.angle); }
+
+  spawnObstacle() {
+    const fromCenter = Math.random() < 0.4;
+    let x, y, vx, vy;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 70 + Math.random() * 80;
+    if (fromCenter) {
+      x = 200; y = 200;
+      vx = speed * Math.cos(angle);
+      vy = speed * Math.sin(angle);
+    } else {
+      const r = 280;
+      x = 200 + r * Math.cos(angle);
+      y = 200 + r * Math.sin(angle);
+      const targetAngle = angle + Math.PI + (Math.random() - 0.5) * 0.5;
+      vx = speed * Math.cos(targetAngle);
+      vy = speed * Math.sin(targetAngle);
+    }
+    this.obstacles.push({
+      x, y, vx, vy,
+      size: 8 + Math.random() * 8,
+      rotation: Math.random() * Math.PI,
+      rotSpeed: (Math.random() - 0.5) * 4
+    });
+  }
+
+  spawnStar() {
+    const r = Math.random() < 0.5 ? 60 : 110;
+    this.stars.push({ r: r, angle: Math.random() * Math.PI * 2, speed: 0.8 + Math.random() * 0.8, life: 8000 });
+  }
+
+  createParticles(x, y, color, count) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 20 + Math.random() * 50;
+      this.particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color: color, size: 1.5 + Math.random() * 2, life: 200 + Math.random() * 200 });
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#02020a';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.strokeStyle = '#111129';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(200, 200, 60, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(200, 200, 110, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(200, 200);
+    ctx.rotate(this.sunRotation);
+    ctx.fillStyle = '#ff007f';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#ff007f';
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      ctx.lineTo(0, -18);
+      ctx.rotate(Math.PI / 8);
+      ctx.lineTo(0, -8);
+      ctx.rotate(Math.PI / 8);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    const px = this.getPlayerX();
+    const py = this.getPlayerY();
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(this.angle + Math.PI/2);
+    ctx.fillStyle = '#00f0ff';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#00f0ff';
+    ctx.beginPath();
+    ctx.moveTo(0, -8);
+    ctx.lineTo(-6, 6);
+    ctx.lineTo(6, 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    this.obstacles.forEach(o => {
+      ctx.save();
+      ctx.translate(o.x, o.y);
+      ctx.rotate(o.rotation);
+      ctx.fillStyle = '#ff3333';
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#ff3333';
+      ctx.fillRect(-o.size/2, -o.size/2, o.size, o.size);
+      ctx.restore();
+    });
+
+    this.stars.forEach(s => {
+      const sx = 200 + s.r * Math.cos(s.angle);
+      const sy = 200 + s.r * Math.sin(s.angle);
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(performance.now() * 0.005);
+      ctx.fillStyle = '#ffd700';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#ffd700';
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        ctx.lineTo(0, -7);
+        ctx.rotate(Math.PI / 4);
+        ctx.lineTo(0, -3);
+        ctx.rotate(Math.PI / 4);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
+
+    this.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    });
+  }
+
+  cleanup() {
+    this.obstacles = [];
+    this.stars = [];
+    this.particles = [];
+  }
+}
+
+// ----------------------------------------------------
+// 22. NINJA LEAP
+// ----------------------------------------------------
+class NinjaGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.diff = diff;
+    this.player = { side: 'left', x: 40, y: 300, w: 16, h: 16, state: 'running', vx: 0, rotation: 0 };
+    this.scrollSpeed = 160;
+    this.obstacles = [];
+    this.particles = [];
+    this.spawnTimer = 0;
+    this.spawnInterval = 1000;
+    this.timeElapsed = 0;
+  }
+
+  init() {
+    this.player.side = 'left';
+    this.player.x = 40;
+    this.player.y = 300;
+    this.player.state = 'running';
+    this.player.vx = 0;
+    this.player.rotation = 0;
+    this.obstacles = [];
+    this.particles = [];
+    this.timeElapsed = 0;
+    if (this.diff === 'easy') { this.scrollSpeed = 120; this.spawnInterval = 1300; }
+    else if (this.diff === 'hard') { this.scrollSpeed = 220; this.spawnInterval = 750; }
+    else { this.scrollSpeed = 160; this.spawnInterval = 1000; }
+  }
+
+  update(dt) {
+    const dtSec = dt / 1000;
+    this.timeElapsed += dt;
+    score = Math.floor(this.timeElapsed / 100);
+
+    if (keysPressed[' '] || keysPressed['ArrowUp'] || keysPressed['w'] || keysPressed['Jump']) {
+      keysPressed[' '] = false;
+      keysPressed['ArrowUp'] = false;
+      keysPressed['w'] = false;
+      keysPressed['Jump'] = false;
+      if (this.player.state === 'running') {
+        this.player.state = 'jumping';
+        sounds.playTone(500, 'triangle', 0.08);
+        this.player.vx = this.player.side === 'left' ? 600 : -600;
+        this.createSparks(this.player.x + (this.player.side === 'left' ? 8 : -8), this.player.y + 8, '#39ff14', 4);
+      }
+    }
+
+    if (this.player.state === 'jumping') {
+      this.player.x += this.player.vx * dtSec;
+      this.player.rotation += 20 * dtSec;
+      if (this.player.vx > 0 && this.player.x >= 344) {
+        this.player.x = 344;
+        this.player.side = 'right';
+        this.player.state = 'running';
+        this.player.rotation = 0;
+        sounds.playTone(300, 'sine', 0.05);
+        this.createSparks(360, this.player.y + 8, '#39ff14', 5);
+      }
+      else if (this.player.vx < 0 && this.player.x <= 40) {
+        this.player.x = 40;
+        this.player.side = 'left';
+        this.player.state = 'running';
+        this.player.rotation = 0;
+        sounds.playTone(300, 'sine', 0.05);
+        this.createSparks(40, this.player.y + 8, '#39ff14', 5);
+      }
+    }
+
+    this.spawnTimer += dt;
+    if (this.spawnTimer >= this.spawnInterval) {
+      this.spawnTimer = 0;
+      this.spawnObstacle();
+    }
+
+    for (let i = this.obstacles.length - 1; i >= 0; i--) {
+      const o = this.obstacles[i];
+      o.y += this.scrollSpeed * dtSec;
+      if (o.type === 'shuriken') o.rotation += 10 * dtSec;
+      const collides = (
+        this.player.x + this.player.w >= o.x &&
+        this.player.x <= o.x + o.w &&
+        this.player.y + this.player.h >= o.y &&
+        this.player.y <= o.y + o.h
+      );
+      if (collides) {
+        if (o.type === 'star') {
+          score += 50;
+          this.timeElapsed += 500;
+          sounds.playScore();
+          this.createSparks(o.x + o.w/2, o.y + o.h/2, '#ffd700', 8);
+          this.obstacles.splice(i, 1);
+          continue;
+        } else if (o.type === 'shuriken' && this.player.state === 'jumping') {
+          score += 100;
+          sounds.playTone(800, 'square', 0.1, 1200);
+          this.createSparks(o.x + o.w/2, o.y + o.h/2, '#ffffff', 10);
+          this.obstacles.splice(i, 1);
+          continue;
+        } else {
+          sounds.playHit();
+          triggerGameOver();
+          return;
+        }
+      }
+      if (o.y > this.canvas.height) {
+        this.obstacles.splice(i, 1);
+      }
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtSec;
+      p.y += p.vy * dtSec;
+      p.life -= dt;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
+  }
+
+  spawnObstacle() {
+    const r = Math.random();
+    const side = Math.random() < 0.5 ? 'left' : 'right';
+    if (r < 0.45) {
+      this.obstacles.push({ type: 'spike', x: side === 'left' ? 40 : 340, y: -30, w: 16, h: 24, side: side });
+    } else if (r < 0.80) {
+      this.obstacles.push({ type: 'shuriken', x: side === 'left' ? 90 : 290, y: -30, w: 20, h: 20, rotation: 0 });
+    } else {
+      this.obstacles.push({ type: 'star', x: 100 + Math.random() * 200, y: -30, w: 14, h: 14 });
+    }
+  }
+
+  createSparks(x, y, color, count) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 40 + Math.random() * 70;
+      this.particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color: color, size: 1.5 + Math.random() * 2.5, life: 200 + Math.random() * 200 });
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#050410';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.fillStyle = '#1c1b35';
+    ctx.fillRect(0, 0, 40, this.canvas.height);
+    ctx.fillRect(360, 0, 40, this.canvas.height);
+
+    ctx.strokeStyle = '#39ff14';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(40, 0); ctx.lineTo(40, this.canvas.height);
+    ctx.moveTo(360, 0); ctx.lineTo(360, this.canvas.height);
+    ctx.stroke();
+
+    this.obstacles.forEach(o => {
+      ctx.save();
+      ctx.shadowBlur = 8;
+      if (o.type === 'spike') {
+        ctx.fillStyle = '#ff3333';
+        ctx.shadowColor = '#ff3333';
+        ctx.beginPath();
+        if (o.side === 'left') {
+          ctx.moveTo(o.x, o.y); ctx.lineTo(o.x + o.w, o.y + o.h/2); ctx.lineTo(o.x, o.y + o.h);
+        } else {
+          ctx.moveTo(o.x + o.w, o.y); ctx.lineTo(o.x, o.y + o.h/2); ctx.lineTo(o.x + o.w, o.y + o.h);
+        }
+        ctx.closePath();
+        ctx.fill();
+      } else if (o.type === 'shuriken') {
+        ctx.translate(o.x + o.w/2, o.y + o.h/2);
+        ctx.rotate(o.rotation);
+        ctx.fillStyle = '#a855f7';
+        ctx.shadowColor = '#a855f7';
+        ctx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          ctx.lineTo(0, -10); ctx.lineTo(3, -3); ctx.lineTo(10, 0); ctx.rotate(Math.PI / 2);
+        }
+        ctx.closePath();
+        ctx.fill();
+      } else if (o.type === 'star') {
+        ctx.translate(o.x + o.w/2, o.y + o.h/2);
+        ctx.rotate(performance.now() * 0.005);
+        ctx.fillStyle = '#ffd700';
+        ctx.shadowColor = '#ffd700';
+        ctx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          ctx.lineTo(0, -7); ctx.rotate(Math.PI / 4); ctx.lineTo(0, -3); ctx.rotate(Math.PI / 4);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+
+    this.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    });
+
+    ctx.save();
+    ctx.translate(this.player.x + this.player.w/2, this.player.y + this.player.h/2);
+    ctx.rotate(this.player.rotation);
+    ctx.fillStyle = '#39ff14';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#39ff14';
+    ctx.fillRect(-this.player.w/2, -this.player.h/2, this.player.w, this.player.h);
+    ctx.fillStyle = '#ff007f';
+    if (this.player.state === 'running') {
+      const tailX = this.player.side === 'left' ? -12 : 8;
+      ctx.fillRect(tailX, -3, 4, 2);
+      ctx.fillRect(tailX - 2, 0, 4, 2);
+    }
+    ctx.restore();
+  }
+
+  cleanup() {
+    this.obstacles = [];
+    this.particles = [];
+  }
+}
+
+// ----------------------------------------------------
+// 23. HELIX FALL
+// ----------------------------------------------------
+class HelixGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.diff = diff;
+    this.ball = { x: 200, y: 120, vy: 0, radius: 6, maxVy: 400 };
+    this.gravity = 500;
+    this.bounceForce = -230;
+    this.towerRotation = 0;
+    this.platforms = [];
+    this.cameraY = 120;
+    this.particles = [];
+  }
+
+  init() {
+    this.ball.x = 200;
+    this.ball.y = 120;
+    this.ball.vy = 0;
+    this.towerRotation = 0;
+    this.platforms = [];
+    this.cameraY = 120;
+    this.particles = [];
+    for (let i = 0; i < 30; i++) {
+      this.generatePlatform(i);
+    }
+    this.ball.y = this.platforms[0].y - 40;
+    this.dragStart = null;
+    this.touchStartHandler = (e) => { this.dragStart = e.touches[0].clientX; };
+    this.touchMoveHandler = (e) => {
+      if (this.dragStart === null) return;
+      const dx = e.touches[0].clientX - this.dragStart;
+      this.towerRotation += dx * 0.015;
+      this.dragStart = e.touches[0].clientX;
+    };
+    this.touchEndHandler = () => { this.dragStart = null; };
+    this.canvas.addEventListener('touchstart', this.touchStartHandler);
+    this.canvas.addEventListener('touchmove', this.touchMoveHandler);
+    this.canvas.addEventListener('touchend', this.touchEndHandler);
+  }
+
+  generatePlatform(index) {
+    const y = 200 + index * 130;
+    const sectors = [];
+    const gapIndex = Math.floor(Math.random() * 8);
+    const dangerIndex1 = (gapIndex + 4) % 8;
+    const dangerIndex2 = (gapIndex + 3) % 8;
+    for (let s = 0; s < 8; s++) {
+      let type = 'safe';
+      if (s === gapIndex) type = 'gap';
+      else if (s === dangerIndex1 || (this.diff === 'hard' && s === dangerIndex2)) type = 'danger';
+      sectors.push({ startAngle: s * Math.PI / 4, endAngle: (s + 1) * Math.PI / 4, type: type });
+    }
+    this.platforms.push({ y, sectors });
+  }
+
+  update(dt) {
+    const dtSec = dt / 1000;
+    let rotSpeed = 3.5;
+    if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['Left']) {
+      this.towerRotation += rotSpeed * dtSec;
+    }
+    if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['Right']) {
+      this.towerRotation -= rotSpeed * dtSec;
+    }
+    this.ball.vy += this.gravity * dtSec;
+    if (this.ball.vy > this.ball.maxVy) this.ball.vy = this.ball.maxVy;
+    this.ball.y += this.ball.vy * dtSec;
+    this.cameraY += (this.ball.y - this.cameraY) * 6 * dtSec;
+
+    this.platforms.forEach((p, idx) => {
+      if (this.ball.vy > 0 && Math.abs(this.ball.y - p.y) < 8) {
+        let checkAngle = (Math.PI / 2 - this.towerRotation) % (Math.PI * 2);
+        if (checkAngle < 0) checkAngle += Math.PI * 2;
+        const sector = p.sectors.find(s => checkAngle >= s.startAngle && checkAngle <= s.endAngle);
+        if (sector) {
+          if (sector.type === 'gap') {
+            // fall through
+          } else if (sector.type === 'danger') {
+            sounds.playHit();
+            triggerGameOver();
+          } else {
+            this.ball.vy = this.bounceForce;
+            this.ball.y = p.y - 4;
+            sounds.playTone(320, 'sine', 0.06);
+            score = idx * 10;
+            for (let i = 0; i < 5; i++) {
+              this.particles.push({
+                x: this.ball.x + (Math.random() - 0.5) * 12,
+                y: p.y,
+                vx: (Math.random() - 0.5) * 60,
+                vy: -80 - Math.random() * 80,
+                color: '#39ff14',
+                size: 2,
+                life: 300 + Math.random() * 200
+              });
+            }
+          }
+        }
+      }
+    });
+
+    if (this.ball.y > this.platforms[this.platforms.length - 5].y) {
+      const curLen = this.platforms.length;
+      for (let i = 0; i < 10; i++) {
+        this.generatePlatform(curLen + i);
+      }
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtSec;
+      p.y += p.vy * dtSec;
+      p.vy += 400 * dtSec;
+      p.life -= dt;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#060412';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.fillStyle = '#1c1b35';
+    ctx.fillRect(190, 0, 20, this.canvas.height);
+
+    this.platforms.forEach((p) => {
+      const py = 200 + (p.y - this.cameraY);
+      if (py < -50 || py > this.canvas.height + 50) return;
+      p.sectors.forEach(s => {
+        if (s.type === 'gap') return;
+        ctx.save();
+        ctx.strokeStyle = s.type === 'danger' ? '#ff3333' : '#a855f7';
+        ctx.shadowBlur = s.type === 'danger' ? 8 : 0;
+        ctx.shadowColor = s.type === 'danger' ? '#ff3333' : 'transparent';
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        const drawStart = s.startAngle + this.towerRotation;
+        const drawEnd = s.endAngle + this.towerRotation;
+        ctx.ellipse(200, py, 90, 14, 0, drawStart, drawEnd);
+        ctx.stroke();
+        ctx.restore();
+      });
+    });
+
+    this.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y - this.cameraY + 200, p.size, p.size);
+    });
+
+    const by = 200 + (this.ball.y - this.cameraY);
+    ctx.save();
+    ctx.fillStyle = '#39ff14';
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = '#39ff14';
+    ctx.beginPath();
+    ctx.arc(this.ball.x, by, this.ball.radius, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  cleanup() {
+    this.canvas.removeEventListener('touchstart', this.touchStartHandler);
+    this.canvas.removeEventListener('touchmove', this.touchMoveHandler);
+    this.canvas.removeEventListener('touchend', this.touchEndHandler);
+    this.platforms = [];
+    this.particles = [];
+  }
+}
+
+// ----------------------------------------------------
+// 24. CORE SHIELD
+// ----------------------------------------------------
+class CoreShieldGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.diff = diff;
+    this.core = { x: 200, y: 200, r: 16, lives: 3, flashTime: 0 };
+    this.shieldAngle = 0;
+    this.shieldRadius = 60;
+    this.shieldWidth = Math.PI / 3;
+    this.meteors = [];
+    this.particles = [];
+    this.spawnTimer = 0;
+    this.spawnInterval = 1000;
+    this.timeElapsed = 0;
+    this.screenShake = 0;
+  }
+
+  init() {
+    this.core.lives = (this.diff === 'easy') ? 4 : (this.diff === 'hard') ? 2 : 3;
+    this.core.flashTime = 0;
+    this.shieldAngle = 0;
+    this.meteors = [];
+    this.particles = [];
+    this.timeElapsed = 0;
+    this.screenShake = 0;
+    if (this.diff === 'easy') { this.spawnInterval = 1300; }
+    else if (this.diff === 'hard') { this.spawnInterval = 700; }
+    else { this.spawnInterval = 1000; }
+  }
+
+  update(dt) {
+    const dtSec = dt / 1000;
+    this.timeElapsed += dt;
+    if (this.screenShake > 0) this.screenShake -= dt;
+    if (this.core.flashTime > 0) this.core.flashTime -= dt;
+
+    const rotSpeed = 4.5;
+    if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['Left']) {
+      this.shieldAngle -= rotSpeed * dtSec;
+    }
+    if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['Right']) {
+      this.shieldAngle += rotSpeed * dtSec;
+    }
+    this.shieldAngle = (this.shieldAngle + Math.PI * 2) % (Math.PI * 2);
+
+    this.spawnTimer += dt;
+    if (this.spawnTimer >= this.spawnInterval) {
+      this.spawnTimer = 0;
+      this.spawnMeteor();
+    }
+
+    for (let i = this.meteors.length - 1; i >= 0; i--) {
+      const m = this.meteors[i];
+      const dx = 200 - m.x;
+      const dy = 200 - m.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist <= 15) {
+        if (this.core.flashTime <= 0) {
+          this.core.lives--;
+          this.core.flashTime = 500;
+          this.screenShake = 200;
+          sounds.playHit();
+          this.createSparks(200, 200, '#ff3333', 12);
+          if (this.core.lives <= 0) {
+            triggerGameOver();
+            return;
+          }
+        }
+        this.meteors.splice(i, 1);
+        continue;
+      }
+
+      if (m.vx !== 0 || m.vy !== 0) {
+        m.x += m.vx * dtSec;
+        m.y += m.vy * dtSec;
+        const nextDist = Math.hypot(200 - m.x, 200 - m.y);
+        if (dist >= this.shieldRadius && nextDist <= this.shieldRadius) {
+          let meteorAngle = Math.atan2(m.y - 200, m.x - 200);
+          if (meteorAngle < 0) meteorAngle += Math.PI * 2;
+          let diff = Math.abs(meteorAngle - this.shieldAngle);
+          if (diff > Math.PI) diff = Math.PI * 2 - diff;
+          if (diff <= this.shieldWidth / 2) {
+            score += 20;
+            sounds.playTone(600, 'triangle', 0.08, 800);
+            this.createSparks(m.x, m.y, '#00f0ff', 6);
+            this.meteors.splice(i, 1);
+            continue;
+          }
+        }
+      }
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtSec;
+      p.y += p.vy * dtSec;
+      p.life -= dt;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
+  }
+
+  spawnMeteor() {
+    let x = 0, y = 0;
+    const r = Math.random();
+    if (r < 0.25) { x = Math.random() * 400; y = -10; }
+    else if (r < 0.50) { x = Math.random() * 400; y = 410; }
+    else if (r < 0.75) { x = -10; y = Math.random() * 400; }
+    else { x = 410; y = Math.random() * 400; }
+
+    const speed = 70 + Math.random() * 60;
+    const angle = Math.atan2(200 - y, 200 - x);
+    const vx = speed * Math.cos(angle);
+    const vy = speed * Math.sin(angle);
+    this.meteors.push({ x, y, vx, vy, size: 6 + Math.random() * 4 });
+  }
+
+  createSparks(x, y, color, count) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 30 + Math.random() * 60;
+      this.particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color: color, size: 1.5 + Math.random() * 2, life: 200 + Math.random() * 200 });
+    }
+  }
+
+  draw(ctx) {
+    ctx.save();
+    if (this.screenShake > 0) {
+      ctx.translate((Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8);
+    }
+    ctx.fillStyle = '#03020b';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.strokeStyle = '#100f27';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(200, 200, this.shieldRadius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.save();
+    if (this.core.flashTime > 0 && Math.floor(performance.now() / 100) % 2 === 0) {
+      ctx.fillStyle = '#ffffff';
+    } else {
+      ctx.fillStyle = '#ff007f';
+    }
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#ff007f';
+    ctx.beginPath();
+    ctx.arc(200, 200, this.core.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = '#00f0ff';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#00f0ff';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(200, 200, this.shieldRadius, this.shieldAngle - this.shieldWidth/2, this.shieldAngle + this.shieldWidth/2);
+    ctx.stroke();
+    ctx.restore();
+
+    this.meteors.forEach(m => {
+      ctx.save();
+      ctx.fillStyle = '#eab308';
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = '#eab308';
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, m.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    this.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    });
+    ctx.restore();
+
+    ctx.textAlign = 'right';
+    let hearts = '';
+    for (let i = 0; i < this.core.lives; i++) hearts += '♥';
+    ctx.fillStyle = '#ff007f';
+    ctx.font = '10px "Press Start 2P"';
+    ctx.fillText(hearts, this.canvas.width - 15, 25);
+  }
+
+  cleanup() {
+    this.meteors = [];
     this.particles = [];
   }
 }

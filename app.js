@@ -1223,12 +1223,6 @@ class BlockDropGame {
         this.move(1);
       } else if (key === 'ArrowUp' || key === 'w' || key === 'W') {
         this.rotate();
-      } else if (key === 'ArrowDown' || key === 's' || key === 'S') {
-        this.fastDrop = true;
-      }
-    } else if (type === 'keyup') {
-      if (key === 'ArrowDown' || key === 's' || key === 'S') {
-        this.fastDrop = false;
       }
     }
   }
@@ -1342,7 +1336,8 @@ class BlockDropGame {
 
   update(dt) {
     this.dropTimer += dt;
-    const interval = this.fastDrop ? 40 : this.dropInterval;
+    const isDownPressed = keysPressed['ArrowDown'] || keysPressed['s'] || keysPressed['S'];
+    const interval = isDownPressed ? 40 : this.dropInterval;
 
     if (this.dropTimer >= interval) {
       this.dropTimer = 0;
@@ -3590,6 +3585,12 @@ class PixelGobblerGame {
           this.player.x = nx;
           this.player.y = ny;
           
+          // Check collision immediately after player moves to prevent phase-through
+          if (this.player.x === this.ghost.x && this.player.y === this.ghost.y) {
+            triggerGameOver();
+            return;
+          }
+          
           const dot = this.dots.find(d => d.x === nx && d.y === ny && d.active);
           if (dot) {
             dot.active = false;
@@ -3648,6 +3649,12 @@ class PixelGobblerGame {
         if (chosenDir) {
           this.ghost.x += chosenDir.x;
           this.ghost.y += chosenDir.y;
+          
+          // Check collision immediately after ghost moves to prevent phase-through
+          if (this.player.x === this.ghost.x && this.player.y === this.ghost.y) {
+            triggerGameOver();
+            return;
+          }
         }
       }
     }

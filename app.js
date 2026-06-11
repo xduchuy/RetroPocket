@@ -96,7 +96,7 @@ const STATE = {
   gameover: 'gameover'
 };
 
-const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker'];
+const gamesList = ['snake', 'blocks', 'paddle', 'defender', 'memory', 'runner', 'minesweeper', 'flappy', 'frog', 'racer', 'gobbler', 'stacker', 'catcher'];
 
 const DOM = {
   menuScreen: document.getElementById('menuScreen'),
@@ -200,6 +200,7 @@ const TRANSLATIONS = {
     desc_racer: 'Dodge traffic, change lanes, and speed down a neon-lit highway!',
     desc_gobbler: 'Munch all neon dots in the maze and escape the chasing red ghost!',
     desc_stacker: 'Align moving blocks carefully to build the tallest tower possible!',
+    desc_catcher: 'Catch falling neon stars and gems while dodging dangerous bombs!',
     
     instruct_snake: 'Navigate the grid. Eat green/gold apples. Do not crash!',
     instruct_blocks: 'Move blocks. Rotate to align rows and clear lines.',
@@ -213,6 +214,7 @@ const TRANSLATIONS = {
     instruct_racer: 'Dodge oncoming neon cars! Move left/right to change lanes.',
     instruct_gobbler: 'Eat all neon dots. Avoid the red chasing ghost!',
     instruct_stacker: 'Press STACK or Spacebar to place the moving row. Align them perfectly!',
+    instruct_catcher: 'Move left/right to catch gems and stars. Avoid red bombs!',
     
     title_snake: 'SNAKE PIXEL',
     title_blocks: 'BLOCK DROP',
@@ -226,6 +228,7 @@ const TRANSLATIONS = {
     title_racer: 'PIXEL RACER',
     title_gobbler: 'PIXEL GOBBLER',
     title_stacker: 'PIXEL STACKER',
+    title_catcher: 'PIXEL CATCHER',
     help_btn: '❓ HELP',
     help_title: '❓ HOW TO PLAY ❓',
     help_ctrl_desktop: 'DESKTOP CONTROLS:',
@@ -287,6 +290,7 @@ const TRANSLATIONS = {
     desc_racer: 'Lách xe qua dòng phương tiện đông đúc trên cao tốc!',
     desc_gobbler: 'Ăn hết chấm vàng trong mê cung và chạy trốn bóng ma!',
     desc_stacker: 'Xếp chồng các khối gạch di động thẳng hàng để xây tháp!',
+    desc_catcher: 'Hứng sao và đá quý rơi từ trên cao, đồng thời né tránh bom đỏ!',
     
     instruct_snake: 'Di chuyển trong lưới. Ăn táo xanh/vàng. Đừng đâm vào đuôi!',
     instruct_blocks: 'Di chuyển khối gạch. Xoay khối để xếp kín và xóa hàng.',
@@ -300,6 +304,7 @@ const TRANSLATIONS = {
     instruct_racer: 'Tránh các ô tô neon ngược chiều! Nhấn trái/phải để chuyển làn.',
     instruct_gobbler: 'Ăn tất cả các chấm neon. Né tránh con ma đỏ đuổi theo!',
     instruct_stacker: 'Nhấn XẾP hoặc phím Cách để đặt hàng gạch. Căn chỉnh thật chuẩn!',
+    instruct_catcher: 'Di chuyển trái/phải để hứng đá quý và sao. Tránh bom đỏ!',
     
     title_snake: 'RẮN SĂN MỒI',
     title_blocks: 'XẾP GẠCH',
@@ -313,6 +318,7 @@ const TRANSLATIONS = {
     title_racer: 'ĐUA XE NEON',
     title_gobbler: 'ĂN CHẤM VÀNG',
     title_stacker: 'XẾP THÁP',
+    title_catcher: 'HỨNG ĐÁ QUÝ',
     help_btn: '❓ TRỢ GIÚP',
     help_title: '❓ HƯỚNG DẪN CHƠI ❓',
     help_ctrl_desktop: 'ĐIỀU KHIỂN TRÊN MÁY TÍNH:',
@@ -610,6 +616,12 @@ function launchGame(gameKey) {
     DOM.mobileController.classList.remove('hidden');
     document.getElementById('btnJumpAction').textContent = getTranslation('lbl_stack');
     DOM.instructionText.textContent = getTranslation('instruct_stacker');
+  } else if (gameKey === 'catcher') {
+    DOM.ctrlLeftRightAction.classList.remove('hidden');
+    DOM.mobileController.classList.remove('hidden');
+    document.getElementById('btnActionA').textContent = 'A';
+    document.getElementById('btnActionB').textContent = 'B';
+    DOM.instructionText.textContent = getTranslation('instruct_catcher');
   }
   
   // Sync difficulty button highlights with the current global difficulty
@@ -664,6 +676,7 @@ function initActiveGame() {
   else if (activeGameKey === 'racer') activeGame = new PixelRacerGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'gobbler') activeGame = new PixelGobblerGame(DOM.canvas, difficulty);
   else if (activeGameKey === 'stacker') activeGame = new PixelStackerGame(DOM.canvas, difficulty);
+  else if (activeGameKey === 'catcher') activeGame = new PixelCatcherGame(DOM.canvas, difficulty);
 
   activeGame.init();
   startGameLoop();
@@ -3891,6 +3904,460 @@ class PixelStackerGame {
   }
 
   cleanup() {}
+}
+
+// ----------------------------------------------------
+// 15.5 GAME ENGINE 13: PIXEL CATCHER
+// ----------------------------------------------------
+class PixelCatcherGame {
+  constructor(canvas, diff) {
+    this.canvas = canvas;
+    this.diff = diff;
+    
+    this.x = 180;
+    this.y = 360;
+    this.w = 40;
+    this.h = 12;
+    this.speed = 6.5;
+    this.lives = 3;
+    
+    this.items = [];
+    this.particles = [];
+    this.stars = [];
+    
+    this.spawnTimer = 0;
+    this.spawnInterval = 800; // ms
+    this.timeElapsed = 0;
+    
+    this.magnetTimer = 0;
+    this.flashTimer = 0;
+    
+    if (diff === 'easy') {
+      this.lives = 4;
+      this.spawnInterval = 1000;
+      this.baseFallSpeed = 140;
+    } else if (diff === 'normal') {
+      this.lives = 3;
+      this.spawnInterval = 800;
+      this.baseFallSpeed = 190;
+    } else {
+      this.lives = 2;
+      this.spawnInterval = 600;
+      this.baseFallSpeed = 240;
+    }
+  }
+
+  init() {
+    this.x = 200 - this.w / 2;
+    this.y = 360;
+    this.magnetTimer = 0;
+    this.flashTimer = 0;
+    this.timeElapsed = 0;
+    this.items = [];
+    this.particles = [];
+    
+    if (this.diff === 'easy') {
+      this.lives = 4;
+      this.spawnInterval = 1000;
+      this.baseFallSpeed = 140;
+    } else if (this.diff === 'normal') {
+      this.lives = 3;
+      this.spawnInterval = 800;
+      this.baseFallSpeed = 190;
+    } else {
+      this.lives = 2;
+      this.spawnInterval = 600;
+      this.baseFallSpeed = 240;
+    }
+
+    // Spawn stars for parallax background
+    this.stars = [];
+    for (let i = 0; i < 25; i++) {
+      this.stars.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        size: 1 + Math.random() * 2,
+        speed: 30 + Math.random() * 40
+      });
+    }
+  }
+
+  handleInput(key, type) {}
+
+  spawnItem() {
+    const scale = Math.min(1.8, 1 + this.timeElapsed / 30000);
+    const r = Math.random();
+    let type = 'gem';
+    let size = 12;
+    let color = varColor('--cyan');
+    
+    let bombWeight = 0.25;
+    if (this.diff === 'normal') bombWeight = 0.32;
+    if (this.diff === 'hard') bombWeight = 0.40;
+    
+    if (r < bombWeight) {
+      type = 'bomb';
+      size = 14;
+      color = '#ff3333';
+    } else if (r < bombWeight + 0.45) {
+      type = 'gem';
+      size = 12;
+      color = varColor('--cyan');
+    } else if (r < bombWeight + 0.45 + 0.15) {
+      type = 'star';
+      size = 12;
+      color = varColor('--yellow');
+    } else if (r < bombWeight + 0.45 + 0.15 + 0.05) {
+      type = 'magnet';
+      size = 16;
+      color = varColor('--pink');
+    } else {
+      type = 'heart';
+      size = 12;
+      color = varColor('--green');
+    }
+
+    const fallSpeed = this.baseFallSpeed * (0.9 + Math.random() * 0.3) * scale;
+    
+    this.items.push({
+      x: 15 + Math.random() * (this.canvas.width - 30),
+      y: -20,
+      w: size,
+      h: size,
+      type: type,
+      color: color,
+      speed: fallSpeed,
+      angle: Math.random() * Math.PI * 2,
+      spinSpeed: (Math.random() - 0.5) * 4
+    });
+  }
+
+  createParticles(x, y, color, count = 8) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 40 + Math.random() * 80;
+      this.particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: color,
+        size: 2 + Math.random() * 3,
+        life: 400 + Math.random() * 400,
+        maxLife: 800
+      });
+    }
+  }
+
+  update(dt) {
+    const dtSeconds = dt / 1000;
+    this.timeElapsed += dt;
+    
+    if (this.magnetTimer > 0) {
+      this.magnetTimer = Math.max(0, this.magnetTimer - dt);
+    }
+    if (this.flashTimer > 0) {
+      this.flashTimer = Math.max(0, this.flashTimer - dt);
+    }
+
+    const currentW = this.magnetTimer > 0 ? 80 : 40;
+    
+    if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['A']) {
+      this.x = Math.max(0, this.x - this.speed);
+    }
+    if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['D']) {
+      this.x = Math.min(this.canvas.width - currentW, this.x + this.speed);
+    }
+
+    this.stars.forEach(s => {
+      s.y += s.speed * dtSeconds;
+      if (s.y > this.canvas.height) {
+        s.y = 0;
+        s.x = Math.random() * this.canvas.width;
+      }
+    });
+
+    this.spawnTimer += dt;
+    const scale = Math.min(1.8, 1 + this.timeElapsed / 30000);
+    const currentSpawnInterval = this.spawnInterval / scale;
+    if (this.spawnTimer >= currentSpawnInterval) {
+      this.spawnTimer = 0;
+      this.spawnItem();
+    }
+
+    for (let i = this.items.length - 1; i >= 0; i--) {
+      const item = this.items[i];
+      item.y += item.speed * dtSeconds;
+      item.angle += item.spinSpeed * dtSeconds;
+
+      const cupX1 = this.x;
+      const cupX2 = this.x + currentW;
+      const cupY1 = this.y;
+      const cupY2 = this.y + this.h;
+
+      const itemX1 = item.x;
+      const itemX2 = item.x + item.w;
+      const itemY1 = item.y;
+      const itemY2 = item.y + item.h;
+
+      const collides = (itemX2 >= cupX1 && itemX1 <= cupX2 && itemY2 >= cupY1 && itemY1 <= cupY2);
+      
+      if (collides) {
+        if (item.type === 'gem') {
+          score += 10;
+          sounds.playScore();
+          this.createParticles(item.x + item.w/2, item.y + item.h/2, varColor('--cyan'));
+        } else if (item.type === 'star') {
+          score += 30;
+          sounds.playScore();
+          this.createParticles(item.x + item.w/2, item.y + item.h/2, varColor('--yellow'), 12);
+        } else if (item.type === 'magnet') {
+          this.magnetTimer = 8000;
+          sounds.playTone(600, 'square', 0.15);
+          setTimeout(() => sounds.playTone(800, 'square', 0.15), 100);
+          this.createParticles(item.x + item.w/2, item.y + item.h/2, varColor('--pink'), 10);
+        } else if (item.type === 'heart') {
+          if (this.lives < 5) this.lives++;
+          sounds.playWin();
+          this.createParticles(item.x + item.w/2, item.y + item.h/2, varColor('--green'), 10);
+        } else if (item.type === 'bomb') {
+          this.lives--;
+          this.flashTimer = 200;
+          sounds.playHit();
+          this.createParticles(item.x + item.w/2, item.y + item.h/2, '#ff3333', 16);
+          if (this.lives <= 0) {
+            triggerGameOver();
+          }
+        }
+        this.items.splice(i, 1);
+      } else if (item.y > this.canvas.height) {
+        this.items.splice(i, 1);
+      }
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtSeconds;
+      p.y += p.vy * dtSeconds;
+      p.life -= dt;
+      if (p.life <= 0) {
+        this.particles.splice(i, 1);
+      }
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#06040f';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.stars.forEach(s => {
+      ctx.fillStyle = '#4e4376';
+      ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+
+    ctx.strokeStyle = '#1d173d';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 385);
+    ctx.lineTo(this.canvas.width, 385);
+    ctx.stroke();
+
+    this.items.forEach(item => {
+      ctx.save();
+      
+      if (item.type === 'gem') {
+        ctx.translate(item.x + item.w / 2, item.y + item.h / 2);
+        ctx.rotate(item.angle);
+        ctx.fillStyle = item.color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, -item.w / 2);
+        ctx.lineTo(item.w / 2, 0);
+        ctx.lineTo(0, item.w / 2);
+        ctx.lineTo(-item.w / 2, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (item.type === 'star') {
+        ctx.translate(item.x + item.w / 2, item.y + item.h / 2);
+        ctx.rotate(item.angle);
+        ctx.fillStyle = item.color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          ctx.lineTo(0, -item.w / 2);
+          ctx.rotate(Math.PI / 4);
+          ctx.lineTo(0, -item.w / 4);
+          ctx.rotate(Math.PI / 4);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (item.type === 'magnet') {
+        ctx.translate(item.x + item.w / 2, item.y + item.h / 2);
+        ctx.rotate(item.angle);
+        ctx.strokeStyle = item.color;
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(0, 2, item.w / 2 - 2, 0, Math.PI, true);
+        ctx.lineTo(-(item.w / 2 - 2), -4);
+        ctx.moveTo(item.w / 2 - 2, 2);
+        ctx.lineTo(item.w / 2 - 2, -4);
+        ctx.stroke();
+        
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(-(item.w / 2 - 2), -4);
+        ctx.lineTo(-(item.w / 2 - 2), -6);
+        ctx.moveTo(item.w / 2 - 2, -4);
+        ctx.lineTo(item.w / 2 - 2, -6);
+        ctx.stroke();
+      } else if (item.type === 'heart') {
+        ctx.translate(item.x + item.w / 2, item.y + item.h / 2);
+        ctx.rotate(item.angle);
+        ctx.fillStyle = item.color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, -2);
+        ctx.quadraticCurveTo(0, -5, -3, -5);
+        ctx.quadraticCurveTo(-6, -5, -6, -2);
+        ctx.quadraticCurveTo(-6, 1, 0, 6);
+        ctx.quadraticCurveTo(6, 1, 6, -2);
+        ctx.quadraticCurveTo(6, -5, 3, -5);
+        ctx.quadraticCurveTo(0, -5, 0, -2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (item.type === 'bomb') {
+        ctx.translate(item.x + item.w / 2, item.y + item.h / 2);
+        ctx.fillStyle = item.color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(0, 2, item.w / 2 - 1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.strokeStyle = '#ffb300';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -(item.w / 2 - 1) + 2);
+        ctx.quadraticCurveTo(3, -9, 6, -11);
+        ctx.stroke();
+        
+        ctx.fillStyle = '#ffea00';
+        ctx.beginPath();
+        ctx.arc(6, -11, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      ctx.restore();
+    });
+
+    const currentW = this.magnetTimer > 0 ? 80 : 40;
+    ctx.save();
+    
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = this.magnetTimer > 0 ? '#ff007f' : '#00f0ff';
+    
+    const grad = ctx.createLinearGradient(this.x, this.y, this.x + currentW, this.y + this.h);
+    if (this.magnetTimer > 0) {
+      grad.addColorStop(0, '#ff007f');
+      grad.addColorStop(0.5, '#ff77ff');
+      grad.addColorStop(1, '#ff007f');
+    } else {
+      grad.addColorStop(0, '#00c0ff');
+      grad.addColorStop(0.5, '#00ffff');
+      grad.addColorStop(1, '#00c0ff');
+    }
+    
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(this.x + currentW, this.y);
+    ctx.lineTo(this.x + currentW - 5, this.y + this.h);
+    ctx.lineTo(this.x + 5, this.y + this.h);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(this.x + 2, this.y + 1);
+    ctx.lineTo(this.x + currentW - 2, this.y + 1);
+    ctx.stroke();
+
+    if (this.magnetTimer > 0) {
+      ctx.strokeStyle = '#ff007f';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(this.x - 7, this.y + this.h / 2, 6, -Math.PI / 2, Math.PI / 2, true);
+      ctx.moveTo(this.x + currentW + 7, this.y + this.h / 2);
+      ctx.arc(this.x + currentW + 7, this.y + this.h / 2, 6, -Math.PI / 2, Math.PI / 2, false);
+      ctx.stroke();
+    }
+    
+    ctx.restore();
+
+    ctx.save();
+    this.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    });
+    ctx.restore();
+
+    for (let i = 0; i < this.lives; i++) {
+      const hx = 15 + i * 20;
+      const hy = 15;
+      ctx.save();
+      ctx.fillStyle = '#39ff14';
+      ctx.beginPath();
+      ctx.moveTo(hx, hy + 3);
+      ctx.bezierCurveTo(hx, hy, hx - 3, hy, hx - 3, hy + 3);
+      ctx.bezierCurveTo(hx - 3, hy + 6, hx, hy + 9, hx, hy + 11);
+      ctx.bezierCurveTo(hx, hy + 9, hx + 3, hy + 6, hx + 3, hy + 3);
+      ctx.bezierCurveTo(hx + 3, hy, hx, hy, hx, hy + 3);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    if (this.magnetTimer > 0) {
+      ctx.fillStyle = '#ff007f';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`MAGNET: ${(this.magnetTimer / 1000).toFixed(1)}s`, this.canvas.width - 15, 20);
+      
+      const barW = 60;
+      const barH = 4;
+      const barX = this.canvas.width - 15 - barW;
+      const barY = 24;
+      
+      ctx.fillStyle = '#1d173d';
+      ctx.fillRect(barX, barY, barW, barH);
+      ctx.fillStyle = '#ff007f';
+      ctx.fillRect(barX, barY, barW * (this.magnetTimer / 8000), barH);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(barX, barY, barW, barH);
+    }
+
+    if (this.flashTimer > 0) {
+      ctx.fillStyle = `rgba(255, 0, 0, ${0.35 * (this.flashTimer / 200)})`;
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }
+
+  cleanup() {
+    this.items = [];
+    this.particles = [];
+    this.stars = [];
+  }
 }
 
 // ----------------------------------------------------

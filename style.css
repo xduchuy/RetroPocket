@@ -20,6 +20,13 @@
   --font-mono: 'VT323', 'Courier New', monospace;
   
   --border-size: 4px;
+
+  /* Mobile Controller Button Sizes */
+  --dpad-size: 76px;
+  --move-w: 58px;
+  --move-h: 52px;
+  --action-size: 60px;
+  --jump-h: 64px;
 }
 
 /* Global Reset */
@@ -869,11 +876,10 @@ body {
   display: none;
 }
 
-/* D-PAD Layout */
 .dpad-grid {
   display: grid;
-  grid-template-columns: repeat(3, 76px);
-  grid-template-rows: repeat(3, 76px);
+  grid-template-columns: repeat(3, var(--dpad-size));
+  grid-template-rows: repeat(3, var(--dpad-size));
   gap: 8px;
   justify-content: center;
 }
@@ -1404,8 +1410,8 @@ body.playing-mode {
 }
 
 .playing-mode .action-btn {
-  width: 60px;
-  height: 60px;
+  width: var(--action-size);
+  height: var(--action-size);
   border-radius: 50%; /* Make them perfect circles */
   background-color: #a81b32; /* Deep Magenta/Red plastic */
   border: 1px solid #7c1223;
@@ -1442,8 +1448,8 @@ body.playing-mode {
 }
 
 .playing-mode .move-btn {
-  width: 58px;
-  height: 52px;
+  width: var(--move-w);
+  height: var(--move-h);
   background-color: #2e2e30;
   border: none;
   color: #111;
@@ -1477,7 +1483,7 @@ body.playing-mode {
 }
 
 .playing-mode .jump-btn {
-  height: 64px;
+  height: var(--jump-h);
   border-radius: 12px;
   background-color: #a81b32;
   border: 1px solid #7c1223;
@@ -1595,6 +1601,97 @@ body.playing-mode {
 /* 12. Adjust modals positioning in playing-mode */
 .playing-mode .modal-overlay {
   z-index: 2000;
+}
+
+/* 13. Dynamic Responsiveness and Scaling for Mobile Controls */
+
+/* Small Screens (Height constrained <= 680px) */
+@media (max-height: 680px) {
+  :root {
+    --dpad-size: 54px;
+    --move-w: 48px;
+    --move-h: 42px;
+    --action-size: 48px;
+    --jump-h: 48px;
+  }
+  .playing-mode .canvas-container {
+    max-width: 270px;
+    padding: 6px 6px 20px 6px;
+    margin-bottom: 5px;
+  }
+  .playing-mode .mobile-controller {
+    min-height: 160px;
+  }
+  .playing-mode .dpad-grid {
+    grid-template-columns: repeat(3, var(--dpad-size)) !important;
+    grid-template-rows: repeat(3, var(--dpad-size)) !important;
+    gap: 0px !important;
+  }
+  .playing-mode .dpad-btn {
+    font-size: 14px !important;
+  }
+  .playing-mode .move-btn {
+    width: var(--move-w) !important;
+    height: var(--move-h) !important;
+    font-size: 14px !important;
+  }
+  .playing-mode .action-btn {
+    width: var(--action-size) !important;
+    height: var(--action-size) !important;
+    font-size: 10px !important;
+  }
+  .playing-mode .jump-btn {
+    height: var(--jump-h) !important;
+    font-size: 12px !important;
+  }
+  .playing-mode .console-system-controls {
+    margin-top: 5px !important;
+    gap: 8px !important;
+  }
+  .playing-mode .speaker-grill {
+    margin-bottom: 2px !important;
+  }
+  .playing-mode .grill-line {
+    height: 20px !important;
+  }
+  .playing-mode .sys-label {
+    font-size: 7px !important;
+  }
+  .playing-mode .console-sys-btn {
+    width: 36px !important;
+    height: 10px !important;
+  }
+  .playing-mode .branding-text {
+    font-size: 7px !important;
+    margin-bottom: 0px !important;
+  }
+}
+
+/* Large and Tall Screens (Width >= 400px and Height >= 750px) */
+@media (min-height: 750px) and (min-width: 400px) {
+  :root {
+    --dpad-size: 96px;
+    --move-w: 78px;
+    --move-h: 70px;
+    --action-size: 80px;
+    --jump-h: 84px;
+  }
+  .playing-mode .mobile-controller {
+    min-height: 300px;
+  }
+  .playing-mode .dpad-btn {
+    font-size: 22px !important;
+  }
+  .playing-mode .move-btn {
+    font-size: 20px !important;
+  }
+  .playing-mode .action-btn {
+    font-size: 16px !important;
+  }
+  .playing-mode .jump-btn {
+    font-size: 18px !important;
+    border-radius: 18px !important;
+  }
 }
 
 
